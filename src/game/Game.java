@@ -11,8 +11,8 @@ import java.util.concurrent.Executors;
 import javax.swing.JOptionPane;
 
 public class Game {
-	private static int			sizeX;
 	private static int			sizeY;
+	private static int			sizeX;
 	private static int			numBombs;
 	private static int			safeFields;
 	private static GameBoard	gameBoard;
@@ -21,6 +21,7 @@ public class Game {
 	static CyclicBarrier	barrier;
 	static char[][]			level;
 	static boolean			isGameRunning	= true;
+	static boolean			isVictory		= false;
 	
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
 		threadPool = Executors.newFixedThreadPool(4);
@@ -37,12 +38,12 @@ public class Game {
 				if (newSettings == null)
 					System.exit(0);
 				
-				sizeX = newSettings[0];
-				sizeY = newSettings[1];
+				sizeY = newSettings[0];
+				sizeX = newSettings[1];
 				numBombs = newSettings[2];
 				
-				level = Level.newLevel(sizeX, sizeY, numBombs);
-				gameBoard = new GameBoard(sizeX, sizeY);
+				level = Level.newLevel(sizeY, sizeX, numBombs);
+				gameBoard = new GameBoard(sizeY, sizeX);
 				break;
 			
 			case 1:
@@ -65,8 +66,8 @@ public class Game {
 						System.exit(1);
 				}
 				
-				sizeX = level.length;
-				sizeY = level[0].length;
+				sizeY = level.length;
+				sizeX = level[0].length;
 				
 				for (char[] c1 : level) {
 					for (char c2 : c1) {
@@ -77,14 +78,14 @@ public class Game {
 				
 				System.out.println(numBombs);
 				
-				gameBoard = new GameBoard(sizeX, sizeY);
+				gameBoard = new GameBoard(sizeY, sizeX);
 				break;
 			
 			default:
 				System.exit(0);
 		}
 		
-		safeFields = (sizeX * sizeY) - numBombs;
+		safeFields = (sizeY * sizeX) - numBombs;
 		
 		threadPool.execute(gameBoard);
 		threadPool.execute(() -> calculateFields());
@@ -96,33 +97,33 @@ public class Game {
 	}
 	
 	private static synchronized void calculateFields() {
-		for (int x = 0; x < level.length; x++) {
-			for (int y = 0; y < level[x].length; y++) {
-				if (level[x][y] == 'O') {
-					level[x][y] = '0';
+		for (int y = 0; y < level.length; y++) {
+			for (int x = 0; x < level[y].length; x++) {
+				if (level[y][x] == 'O') {
+					level[y][x] = '0';
 					
 					for (int i = -1, j = 1; i <= 1; i++, j--) {
 						try {
-							if (level[x + i][y + j] == '@') {
-								level[x][y]++;
+							if (level[y + i][x + j] == '@') {
+								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
 						try {
-							if (level[x + i][y + i] == '@') {
-								level[x][y]++;
+							if (level[y + i][x + i] == '@') {
+								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
 						try {
-							if (level[x][y + i] == '@') {
-								level[x][y]++;
+							if (level[y][x + i] == '@') {
+								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
 						try {
-							if (level[x + i][y] == '@') {
-								level[x][y]++;
+							if (level[y + i][x] == '@') {
+								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
@@ -144,9 +145,9 @@ public class Game {
 			return;
 		
 		threadPool.execute(() -> {
-			switch (level[field.getValueX()][field.getValueY()]) {
+			switch (level[field.getValueY()][field.getValueX()]) {
 				case GameConstants.BOMB:
-					level[field.getValueX()][field.getValueY()] = GameConstants.FLAGGED_BOMB;
+					level[field.getValueY()][field.getValueX()] = GameConstants.FLAGGED_BOMB;
 					if (GameConstants.DEBUG)
 						DebugView.printLevel(level);
 					
@@ -154,7 +155,7 @@ public class Game {
 					break;
 				
 				default:
-					level[field.getValueX()][field.getValueY()] = GameConstants.FLAGGED;
+					level[field.getValueY()][field.getValueX()] = GameConstants.FLAGGED;
 					safeFields--;
 					
 					if (GameConstants.DEBUG)
@@ -173,7 +174,7 @@ public class Game {
 		if (!field.isActive())
 			return;
 		
-		switch (level[field.getValueX()][field.getValueY()]) {
+		switch (level[field.getValueY()][field.getValueX()]) {
 			case GameConstants.BOMB:
 			case GameConstants.FLAGGED_BOMB:
 				field.updateField();
@@ -187,15 +188,15 @@ public class Game {
 						GameBoard.Field other = (GameBoard.Field) c;
 						
 						for (int i = -1; i <= +1; i++) {
-							if (other.getValueX() == field.getValueX() & other.getValueY() == field.getValueY()) {
+							if (other.getValueY() == field.getValueY() & other.getValueX() == field.getValueX()) {
 								continue;
 							}
 							
-							if ((other.getValueX() == field.getValueX() + i && other.getValueY() == field.getValueY())
-									| (other.getValueY() == field.getValueY() + i
-											&& other.getValueX() == field.getValueX())) {
-								if (level[other.getValueX()][other.getValueY()] == GameConstants.BOMB
-										| level[other.getValueX()][other.getValueY()] == GameConstants.FLAGGED_BOMB) {
+							if ((other.getValueY() == field.getValueY() + i && other.getValueX() == field.getValueX())
+									| (other.getValueX() == field.getValueX() + i
+											&& other.getValueY() == field.getValueY())) {
+								if (level[other.getValueY()][other.getValueX()] == GameConstants.BOMB
+										| level[other.getValueY()][other.getValueX()] == GameConstants.FLAGGED_BOMB) {
 									break;
 								}
 								
@@ -218,7 +219,7 @@ public class Game {
 		
 		if (GameConstants.DEBUG)
 			System.out
-					.println("Game Board: " + (sizeX * sizeY) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+					.println("Game Board: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -236,6 +237,8 @@ public class Game {
 	
 	private static void gameVictory() {
 		isGameRunning = false;
+		isVictory = true;
+
 		gameBoard.updateSmilie(2);
 		gameBoard.updateAllFields();
 		

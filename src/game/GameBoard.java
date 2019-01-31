@@ -30,25 +30,25 @@ class GameBoard extends JFrame implements Runnable {
 	private final JPanel		pnlMenu			= new JPanel();
 	private final JLabel		lblSmiley		= new JLabel();
 	
-	private final int		sizeX;
 	private final int		sizeY;
+	private final int		sizeX;
 	private List<Component>	gameFields;
 	
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
 		
 		private final Field	_this_;
-		private final int	_x_;
 		private final int	_y_;
+		private final int	_x_;
 		private boolean		active	= true;
-		
-		int getValueX() {
-			return _x_;
-		}
-		
+
 		int getValueY() {
 			return _y_;
 		}
+		
+		int getValueX() {
+			return _x_;
+		}		
 		
 		boolean isActive() {
 			return active;
@@ -58,10 +58,10 @@ class GameBoard extends JFrame implements Runnable {
 			this.active = active;
 		}
 		
-		private Field(int x, int y) {
+		private Field(int y, int x) {
 			_this_ = this;
-			this._x_ = x;
 			this._y_ = y;
+			this._x_ = x;
 			
 			this.setPreferredSize(new Dimension(50, 50));
 			this.setFont(new Font(null, Font.PLAIN, 40));
@@ -94,7 +94,7 @@ class GameBoard extends JFrame implements Runnable {
 		}
 		
 		void updateField() {
-			switch (Game.level[this._x_][this._y_]) {
+			switch (Game.level[this._y_][this._x_]) {
 				case GameConstants.FLAGGED:
 					this.setBackground(Color.YELLOW);
 					this.setText(Character.toString(0x2691));
@@ -102,32 +102,36 @@ class GameBoard extends JFrame implements Runnable {
 					break;
 				
 				case GameConstants.BOMB:
-					this.setBackground(Color.RED);
 					this.setText(Character.toString(0x1F571));
+					
+				if (Game.isVictory)
+					this.setBackground(Color.GREEN);
+				else
+					this.setBackground(Color.RED);
+
 					this.active = false;
 					break;
 				
 				case GameConstants.FLAGGED_BOMB:
-					if (!Game.isGameRunning) {
+					this.setText(Character.toString(0x2691));
+
+					if (!Game.isGameRunning)
 						this.setBackground(Color.GREEN);
-						this.setText(Character.toString(0x2691));
-					} else {
+					else
 						this.setBackground(Color.YELLOW);
-						this.setText(Character.toString(0x2691));
-					}
 					
 					this.active = false;
 					break;
 				
 				default:
 					this.setBackground(Color.GRAY);
-					if (Game.level[this._x_][this._y_] > '0') {
-						this.setText("" + Game.level[this._x_][this._y_]);
-						if (Game.level[this._x_][this._y_] == '1')
+					if (Game.level[this._y_][this._x_] > '0') {
+						this.setText("" + Game.level[this._y_][this._x_]);
+						if (Game.level[this._y_][this._x_] == '1')
 							this.setForeground(Color.GREEN);
-						else if (Game.level[this._x_][this._y_] == '2')
+						else if (Game.level[this._y_][this._x_] == '2')
 							this.setForeground(Color.YELLOW);
-						else if (Game.level[this._x_][this._y_] >= '3')
+						else if (Game.level[this._y_][this._x_] >= '3')
 							this.setForeground(Color.RED);
 					}
 					this.active = false;
@@ -155,9 +159,9 @@ class GameBoard extends JFrame implements Runnable {
 		}
 	}
 	
-	GameBoard(int sizeX, int sizeY) {
-		this.sizeX = sizeX;
+	GameBoard(int sizeY, int sizeX) {
 		this.sizeY = sizeY;
+		this.sizeX = sizeX;
 	}
 	
 	List<Component> getGameFields() {
@@ -210,12 +214,12 @@ class GameBoard extends JFrame implements Runnable {
 		this.pnlMenu.add(lblSmiley);
 		this.pnlMenu.add(Box.createVerticalGlue());
 		
-		this.pnlMain.setLayout(new GridLayout(sizeX, sizeY));
+		this.pnlMain.setLayout(new GridLayout(sizeY, sizeX));
 		
 		this.gameFields = new LinkedList<>();
 		
-		for (int i = 0; i < sizeX; i++) {
-			for (int j = 0; j < sizeY; j++) {
+		for (int i = 0; i < sizeY; i++) {
+			for (int j = 0; j < sizeX; j++) {
 				Field f = new Field(i, j);
 				this.gameFields.add(f);
 				this.pnlMain.add(f);
