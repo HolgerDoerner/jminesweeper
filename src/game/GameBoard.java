@@ -2,7 +2,6 @@ package game;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -11,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -26,13 +26,13 @@ import javax.swing.JSeparator;
 class GameBoard extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
-	private final JPanel		pnlMain			= new JPanel();
-	private final JPanel		pnlMenu			= new JPanel();
-	private final JLabel		lblSmiley		= new JLabel();
+	private final JPanel	pnlMain		= new JPanel();
+	private final JPanel	pnlMenu		= new JPanel();
+	private final JLabel	lblSmiley	= new JLabel();
 	
-	private final int		sizeY;
-	private final int		sizeX;
-	private List<Component>	gameFields;
+	private final int	sizeY;
+	private final int	sizeX;
+	private List<Field>	gameFields;
 	
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
@@ -41,14 +41,14 @@ class GameBoard extends JFrame implements Runnable {
 		private final int	_y_;
 		private final int	_x_;
 		private boolean		active	= true;
-
+		
 		int getValueY() {
 			return _y_;
 		}
 		
 		int getValueX() {
 			return _x_;
-		}		
+		}
 		
 		boolean isActive() {
 			return active;
@@ -56,6 +56,10 @@ class GameBoard extends JFrame implements Runnable {
 		
 		private void setActive(boolean active) {
 			this.active = active;
+		}
+		
+		private void setDebugText(char text) {
+			this.setText("" + text);
 		}
 		
 		private Field(int y, int x) {
@@ -73,11 +77,16 @@ class GameBoard extends JFrame implements Runnable {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseReleased(MouseEvent e) {
-					if (e.getButton() == MouseEvent.BUTTON3) {
+					if (e.getButton() == MouseEvent.BUTTON1) // left mouse-button
+						Game.reveralField(_this_);
+					else if (e.getButton() == MouseEvent.BUTTON3) // right mouse-button
 						Game.markField(_this_);
-					}
 					
 					updateSmilie(1);
+					
+					if (Game.DEBUG)
+						System.out.println("Clicked Field: " + _this_.getValueY() + "x" + _this_.getValueX()
+								+ " Mouse-Button: " + e.getButton());
 				}
 				
 				@Override
@@ -85,36 +94,30 @@ class GameBoard extends JFrame implements Runnable {
 					updateSmilie(0);
 				}
 			});
-			
-			// handler for mouse-leftclick
-			// uncovers a field (and all neighbours if possible)
-			this.addActionListener(e -> {
-				Game.reveralField(this);
-			});
 		}
 		
-		void updateField() {
-			switch (Game.level[this._y_][this._x_]) {
-				case GameConstants.FLAGGED:
+		void updateField(final char fieldValue) {
+			switch (fieldValue) {
+				case Game.FLAGGED:
 					this.setBackground(Color.YELLOW);
 					this.setText(Character.toString(0x2691));
 					this.active = false;
 					break;
 				
-				case GameConstants.BOMB:
+				case Game.BOMB:
 					this.setText(Character.toString(0x1F571));
 					
-				if (Game.isVictory)
-					this.setBackground(Color.GREEN);
-				else
-					this.setBackground(Color.RED);
-
+					if (Game.isVictory)
+						this.setBackground(Color.GREEN);
+					else
+						this.setBackground(Color.RED);
+					
 					this.active = false;
 					break;
 				
-				case GameConstants.FLAGGED_BOMB:
+				case Game.FLAGGED_BOMB:
 					this.setText(Character.toString(0x2691));
-
+					
 					if (!Game.isGameRunning)
 						this.setBackground(Color.GREEN);
 					else
@@ -125,13 +128,13 @@ class GameBoard extends JFrame implements Runnable {
 				
 				default:
 					this.setBackground(Color.GRAY);
-					if (Game.level[this._y_][this._x_] > '0') {
-						this.setText("" + Game.level[this._y_][this._x_]);
-						if (Game.level[this._y_][this._x_] == '1')
+					if (fieldValue > '0') {
+						this.setText("" + fieldValue);
+						if (fieldValue == '1')
 							this.setForeground(Color.GREEN);
-						else if (Game.level[this._y_][this._x_] == '2')
+						else if (fieldValue == '2')
 							this.setForeground(Color.YELLOW);
-						else if (Game.level[this._y_][this._x_] >= '3')
+						else if (fieldValue >= '3')
 							this.setForeground(Color.RED);
 					}
 					this.active = false;
@@ -164,17 +167,14 @@ class GameBoard extends JFrame implements Runnable {
 		this.sizeX = sizeX;
 	}
 	
-	List<Component> getGameFields() {
+	List<Field> getGameFields() {
 		return this.gameFields;
 	}
 	
-	void updateAllFields() {
-		for (Component c : this.gameFields) {
-			if (c instanceof Field) {
-				Field field = (Field) c;
-				field.updateField();
-				field.setActive(false);
-			}
+	void updateAllFields(final char[][] data) {
+		for (Field field : this.gameFields) {
+			field.updateField(data[field.getValueY()][field.getValueX()]);
+			field.setActive(false);
 		}
 	}
 	
@@ -202,6 +202,12 @@ class GameBoard extends JFrame implements Runnable {
 		}
 	}
 	
+	void debugView(char[][] data) {
+		for (Field field : gameFields) {
+			field.setDebugText(data[field.getValueY()][field.getValueX()]);
+		}
+	}
+	
 	@Override
 	public void run() {
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
@@ -223,6 +229,9 @@ class GameBoard extends JFrame implements Runnable {
 				Field f = new Field(i, j);
 				this.gameFields.add(f);
 				this.pnlMain.add(f);
+				
+				if (Game.DEBUG)
+					System.out.println("Generated Field: y" + f.getValueY() + " x" + f.getValueX());
 			}
 		}
 		
@@ -237,6 +246,16 @@ class GameBoard extends JFrame implements Runnable {
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
+		
+		// at this point we make sure that everything is ready
+		// so we have to wait for the other tasks to finish their job
+		try {
+			Game.barrier.await();
+		} catch (InterruptedException | BrokenBarrierException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		this.setVisible(true);
 	}
 }

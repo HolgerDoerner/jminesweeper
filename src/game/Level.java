@@ -22,7 +22,7 @@ public final class Level {
 		char[][] level = new char[y][x];
 		
 		for (char[] c : level) {
-			Arrays.fill(c, GameConstants.UNTOUCHED);
+			Arrays.fill(c, Game.UNTOUCHED);
 		}
 		
 		int bombcount = 0;
@@ -31,8 +31,8 @@ public final class Level {
 			for (int i = 0; i < y; i++) {
 				for (int j = 0; j < x; j++) {
 					if ((ThreadLocalRandom.current().nextInt(0, numBombs) % fieldsize == 0) && (bombcount < numBombs)
-							&& level[i][j] != GameConstants.BOMB) {
-						level[i][j] = GameConstants.BOMB;
+							&& level[i][j] != Game.BOMB) {
+						level[i][j] = Game.BOMB;
 						bombcount++;
 					}
 				}

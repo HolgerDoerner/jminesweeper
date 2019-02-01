@@ -19,7 +19,7 @@ final class GameDialogs {
 		final JLabel lblNumBombs = new JLabel("Number of Bombs:");
 		final JTextField txtSizeY = new JTextField("10");
 		final JTextField txtSizeX = new JTextField("10");
-		final JTextField txtNumBombs = new JTextField("30");
+		final JTextField txtNumBombs = new JTextField("15");
 		final JPanel panel = new JPanel();
 		
 		panel.setLayout(new GridLayout(3, 2));
@@ -41,7 +41,7 @@ final class GameDialogs {
 				x = Integer.parseInt(txtSizeX.getText());
 				b = Integer.parseInt(txtNumBombs.getText());
 			} catch (NumberFormatException e) {
-				if (GameConstants.DEBUG)
+				if (Game.DEBUG)
 					e.printStackTrace();
 			}
 			

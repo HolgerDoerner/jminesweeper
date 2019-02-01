@@ -11,21 +11,34 @@ import java.util.concurrent.Executors;
 import javax.swing.JOptionPane;
 
 public class Game {
-	private static int			sizeY;
-	private static int			sizeX;
-	private static int			numBombs;
-	private static int			safeFields;
-	private static GameBoard	gameBoard;
+	// game constants
+	/////////////////
+	static final char		BOMB			= '@';
+	static final char		EMPTY			= '0';
+	static final char		UNTOUCHED		= 'O';
+	static final char		FLAGGED			= 'P';
+	static final char		FLAGGED_BOMB	= '#';
+	static final boolean	DEBUG			= false;
 	
+	// static fields
+	////////////////
 	static ExecutorService	threadPool;
 	static CyclicBarrier	barrier;
 	static char[][]			level;
 	static boolean			isGameRunning	= true;
 	static boolean			isVictory		= false;
 	
+	// static private fields
+	////////////////////////
+	private static int			sizeY;
+	private static int			sizeX;
+	private static int			numBombs;
+	private static int			safeFields;
+	private static GameBoard	gameBoard;
+	
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
 		threadPool = Executors.newFixedThreadPool(4);
-		barrier = new CyclicBarrier(2);
+		barrier = new CyclicBarrier(3);
 		
 		int userChoice = JOptionPane.showOptionDialog(null, "Choose wisely...", "New Game",
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
@@ -49,7 +62,7 @@ public class Game {
 			case 1:
 				Path filePath = GameDialogs.showLoadGameDialog();
 				
-				if (GameConstants.DEBUG)
+				if (Game.DEBUG)
 					System.out.println(filePath);
 				
 				if (filePath == null)
@@ -58,7 +71,7 @@ public class Game {
 				try {
 					level = SaveGameUtility.readFromFile(filePath);
 				} catch (IOException e) {
-					if (GameConstants.DEBUG)
+					if (Game.DEBUG)
 						e.printStackTrace();
 					System.exit(1);
 				} finally {
@@ -90,10 +103,15 @@ public class Game {
 		threadPool.execute(gameBoard);
 		threadPool.execute(() -> calculateFields());
 		
+		// wait here for the previous tasks to finish to make sure
+		// everithing is nice and safe to proceed
 		barrier.await();
 		
-		if (GameConstants.DEBUG)
-			DebugView.printLevel(level);
+		if (Game.DEBUG) {
+			System.out
+					.println("Level: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+			gameBoard.debugView(level);
+		}
 	}
 	
 	private static synchronized void calculateFields() {
@@ -132,6 +150,7 @@ public class Game {
 			}
 		}
 		
+		// wait here until the other tasks are finished
 		try {
 			barrier.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
@@ -146,42 +165,32 @@ public class Game {
 		
 		threadPool.execute(() -> {
 			switch (level[field.getValueY()][field.getValueX()]) {
-				case GameConstants.BOMB:
-					level[field.getValueY()][field.getValueX()] = GameConstants.FLAGGED_BOMB;
-					if (GameConstants.DEBUG)
-						DebugView.printLevel(level);
-					
-					field.updateField();
+				case Game.BOMB:
+					level[field.getValueY()][field.getValueX()] = Game.FLAGGED_BOMB;
+					field.updateField(level[field.getValueY()][field.getValueX()]);
 					break;
 				
 				default:
-					level[field.getValueY()][field.getValueX()] = GameConstants.FLAGGED;
+					level[field.getValueY()][field.getValueX()] = Game.FLAGGED;
+					field.updateField(level[field.getValueY()][field.getValueX()]);
 					safeFields--;
-					
-					if (GameConstants.DEBUG)
-						DebugView.printLevel(level);
-					
-					field.updateField();
 					break;
 			}
 		});
 	}
 	
 	public static synchronized void reveralField(final GameBoard.Field field) {
-		if (GameConstants.DEBUG)
-			DebugView.printLevel(level);
-		
 		if (!field.isActive())
 			return;
 		
 		switch (level[field.getValueY()][field.getValueX()]) {
-			case GameConstants.BOMB:
-			case GameConstants.FLAGGED_BOMB:
-				field.updateField();
+			case Game.BOMB:
+			case Game.FLAGGED_BOMB:
+				field.updateField(level[field.getValueY()][field.getValueX()]);
 				gameOver();
 				break;
 			
-			case GameConstants.EMPTY:
+			case Game.EMPTY:
 				// process the neighbour fields
 				for (Component c : gameBoard.getGameFields()) {
 					if (c instanceof GameBoard.Field) {
@@ -195,8 +204,8 @@ public class Game {
 							if ((other.getValueY() == field.getValueY() + i && other.getValueX() == field.getValueX())
 									| (other.getValueX() == field.getValueX() + i
 											&& other.getValueY() == field.getValueY())) {
-								if (level[other.getValueY()][other.getValueX()] == GameConstants.BOMB
-										| level[other.getValueY()][other.getValueX()] == GameConstants.FLAGGED_BOMB) {
+								if (level[other.getValueY()][other.getValueX()] == Game.BOMB
+										| level[other.getValueY()][other.getValueX()] == Game.FLAGGED_BOMB) {
 									break;
 								}
 								
@@ -207,19 +216,15 @@ public class Game {
 					}
 				}
 				
-				field.updateField();
+				field.updateField(level[field.getValueY()][field.getValueX()]);
 				break;
 			
 			default:
-				field.updateField();
+				field.updateField(level[field.getValueY()][field.getValueX()]);
 				break;
 		}
 		
 		safeFields--;
-		
-		if (GameConstants.DEBUG)
-			System.out
-					.println("Game Board: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -228,7 +233,7 @@ public class Game {
 	private static void gameOver() {
 		isGameRunning = false;
 		gameBoard.updateSmilie(3);
-		gameBoard.updateAllFields();
+		gameBoard.updateAllFields(level);
 		
 		JOptionPane.showMessageDialog(gameBoard, "Dude, you had ONE job...", "GAME OVER", JOptionPane.ERROR_MESSAGE);
 		
@@ -238,9 +243,9 @@ public class Game {
 	private static void gameVictory() {
 		isGameRunning = false;
 		isVictory = true;
-
+		
 		gameBoard.updateSmilie(2);
-		gameBoard.updateAllFields();
+		gameBoard.updateAllFields(level);
 		
 		JOptionPane.showMessageDialog(gameBoard, "You have WON this level !!!", "VICTORY !!!",
 				JOptionPane.INFORMATION_MESSAGE);
