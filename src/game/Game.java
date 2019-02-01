@@ -23,7 +23,7 @@ public class Game {
 	static final char		UNTOUCHED		= 'O';
 	static final char		FLAGGED			= 'P';
 	static final char		FLAGGED_BOMB	= '#';
-	static final boolean	DEBUG			= false;
+	static final boolean	DEBUG			= true;
 	
 	// static fields
 	////////////////
@@ -178,6 +178,9 @@ public class Game {
 		
 		safeFields--;
 		
+		if (DEBUG)
+			gameBoard.updateDebugLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		
 		if (safeFields == 0)
 			gameVictory();
 	}
@@ -295,7 +298,7 @@ public class Game {
 		barrier.await();
 		
 		if (Game.DEBUG) {
-			System.out.println("Level: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+			gameBoard.updateDebugLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
 			gameBoard.debugView(level);
 		}
 	}

@@ -35,6 +35,7 @@ class GameBoard extends JFrame implements Runnable {
 	private final JPanel	pnlMain		= new JPanel();
 	private final JPanel	pnlMenu		= new JPanel();
 	private final JLabel	lblSmiley	= new JLabel();
+	private final JLabel	lblDebug	= new JLabel();
 	
 	private final int	sizeY;
 	private final int	sizeX;
@@ -299,6 +300,10 @@ class GameBoard extends JFrame implements Runnable {
 		}
 	}
 	
+	void updateDebugLabel(String debugText) {
+		this.lblDebug.setText(debugText);
+	}
+	
 	/**
 	 * lets the gui run in its own thread.
 	 */
@@ -335,6 +340,9 @@ class GameBoard extends JFrame implements Runnable {
 		
 		this.add(pnlMenu, BorderLayout.NORTH);
 		this.add(pnlMain, BorderLayout.CENTER);
+		
+		if (Game.DEBUG)
+			this.add(lblDebug, BorderLayout.SOUTH);
 		
 		this.setTitle("Minesweeper");
 		this.setLocationRelativeTo(null);
