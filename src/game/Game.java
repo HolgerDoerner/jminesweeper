@@ -10,6 +10,11 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
+/**
+ * main class of the game
+ * 
+ * @author Holger Dörner {@link https://github.con/holgerdoerner/jminesweeper}
+ */
 public class Game {
 	// game constants
 	/////////////////
@@ -36,84 +41,14 @@ public class Game {
 	private static int			safeFields;
 	private static GameBoard	gameBoard;
 	
-	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
-		threadPool = Executors.newFixedThreadPool(4);
-		barrier = new CyclicBarrier(3);
-		
-		int userChoice = JOptionPane.showOptionDialog(null, "Choose wisely...", "New Game",
-				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-				new String[] { "New", "Load", "Cancel" }, null);
-		
-		switch (userChoice) {
-			case 0:
-				int[] newSettings = GameDialogs.showNewGameDialog();
-				
-				if (newSettings == null)
-					System.exit(0);
-				
-				sizeY = newSettings[0];
-				sizeX = newSettings[1];
-				numBombs = newSettings[2];
-				
-				level = Level.newLevel(sizeY, sizeX, numBombs);
-				gameBoard = new GameBoard(sizeY, sizeX);
-				break;
-			
-			case 1:
-				Path filePath = GameDialogs.showLoadGameDialog();
-				
-				if (Game.DEBUG)
-					System.out.println(filePath);
-				
-				if (filePath == null)
-					System.exit(0);
-				
-				try {
-					level = SaveGameUtility.readFromFile(filePath);
-				} catch (IOException e) {
-					if (Game.DEBUG)
-						e.printStackTrace();
-					System.exit(1);
-				} finally {
-					if (level == null)
-						System.exit(1);
-				}
-				
-				sizeY = level.length;
-				sizeX = level[0].length;
-				
-				for (char[] c1 : level) {
-					for (char c2 : c1) {
-						if (c2 == '@')
-							numBombs++;
-					}
-				}
-				
-				System.out.println(numBombs);
-				
-				gameBoard = new GameBoard(sizeY, sizeX);
-				break;
-			
-			default:
-				System.exit(0);
-		}
-		
-		safeFields = (sizeY * sizeX) - numBombs;
-		
-		threadPool.execute(gameBoard);
-		threadPool.execute(() -> calculateFields());
-		
-		// wait here for the previous tasks to finish to make sure
-		// everithing is nice and safe to proceed
-		barrier.await();
-		
-		if (Game.DEBUG) {
-			System.out
-					.println("Level: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
-			gameBoard.debugView(level);
-		}
-	}
-	
+	/**
+	 * calculates the fields of an level and updates the array before the game
+	 * starts.
+	 * 
+	 * it traverses an two-dimensional array linear and checks the neighbour indexes
+	 * for bombs. if it finds one it updates the current index and increases the
+	 * value by 1.
+	 */
 	private static synchronized void calculateFields() {
 		for (int y = 0; y < level.length; y++) {
 			for (int x = 0; x < level[y].length; x++) {
@@ -154,11 +89,16 @@ public class Game {
 		try {
 			barrier.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (DEBUG)
+				e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * marks field with a flag when the player right-clicks on it
+	 * 
+	 * @param field GameBoard.Field representing an element of the GameBoard in the GUI
+	 */
 	public static void markField(final GameBoard.Field field) {
 		if (!field.isActive())
 			return;
@@ -179,17 +119,28 @@ public class Game {
 		});
 	}
 	
+	/**
+	 * reveals a field and checks if neighbour fields can also be revealed. if this
+	 * is the case it cals itself in a new process for the neighbour field and so on
+	 * until no neighbour field is left to reveal.
+	 * 
+	 * @param field GameBoard.Field representing an element of the GameBoard in the
+	 *              GUI
+	 */
 	public static synchronized void reveralField(final GameBoard.Field field) {
 		if (!field.isActive())
 			return;
 		
 		switch (level[field.getValueY()][field.getValueX()]) {
+			// clicking on a bomb is usualy a bad idea...
 			case Game.BOMB:
 			case Game.FLAGGED_BOMB:
 				field.updateField(level[field.getValueY()][field.getValueX()]);
 				gameOver();
 				break;
-			
+				
+			// if the field is empty (means no neighbour fields are bombs) it will be
+			// it will be revealed and the neighbour fields are checked.
 			case Game.EMPTY:
 				// process the neighbour fields
 				for (Component c : gameBoard.getGameFields()) {
@@ -219,6 +170,7 @@ public class Game {
 				field.updateField(level[field.getValueY()][field.getValueX()]);
 				break;
 			
+			// if the value of the field is >0 than only this field gets revealed.
 			default:
 				field.updateField(level[field.getValueY()][field.getValueX()]);
 				break;
@@ -230,6 +182,9 @@ public class Game {
 			gameVictory();
 	}
 	
+	/**
+	 * player clicked on a bomb-field, too bad...
+	 */
 	private static void gameOver() {
 		isGameRunning = false;
 		gameBoard.updateSmilie(3);
@@ -240,6 +195,9 @@ public class Game {
 		System.exit(0);
 	}
 	
+	/**
+	 * player has revealed all save fields in the level.
+	 */
 	private static void gameVictory() {
 		isGameRunning = false;
 		isVictory = true;
@@ -251,5 +209,94 @@ public class Game {
 				JOptionPane.INFORMATION_MESSAGE);
 		
 		System.exit(0);
+	}
+	
+	/**
+	 * entry point of the game
+	 * 
+	 * @param args
+	 * @throws InterruptedException
+	 * @throws BrokenBarrierException
+	 */
+	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
+		threadPool = Executors.newFixedThreadPool(4);
+		barrier = new CyclicBarrier(3);
+		
+		// ask user what to do: new game, load game or cancel.
+		int userChoice = JOptionPane.showOptionDialog(null, "Choose wisely...", "New Game",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				new String[] { "New", "Load", "Cancel" }, null);
+		
+		switch (userChoice) {
+			// start a new game
+			case 0:
+				int[] newSettings = GameDialogs.showNewGameDialog();
+				
+				if (newSettings == null)
+					System.exit(0);
+				
+				sizeY = newSettings[0];
+				sizeX = newSettings[1];
+				numBombs = newSettings[2];
+				
+				level = Level.newLevel(sizeY, sizeX, numBombs);
+				gameBoard = new GameBoard(sizeY, sizeX);
+				break;
+			
+			// load game from file
+			case 1:
+				Path filePath = GameDialogs.showLoadGameDialog();
+				
+				if (Game.DEBUG)
+					System.out.println(filePath);
+				
+				if (filePath == null)
+					System.exit(0);
+				
+				try {
+					level = SaveGameUtility.readFromFile(filePath);
+				} catch (IOException e) {
+					if (Game.DEBUG)
+						e.printStackTrace();
+					System.exit(1);
+				} finally {
+					if (level == null)
+						System.exit(1);
+				}
+				
+				sizeY = level.length;
+				sizeX = level[0].length;
+				
+				for (char[] c1 : level) {
+					for (char c2 : c1) {
+						if (c2 == '@')
+							numBombs++;
+					}
+				}
+				
+				System.out.println(numBombs);
+				
+				gameBoard = new GameBoard(sizeY, sizeX);
+				break;
+			
+			// user clicked 'cancel'
+			default:
+				System.exit(0);
+		}
+		
+		safeFields = (sizeY * sizeX) - numBombs;
+		
+		// calculate the level and the gui in seperate threads
+		threadPool.execute(gameBoard);
+		threadPool.execute(() -> calculateFields());
+		
+		// wait here for the previous tasks to finish to make sure
+		// everithing is nice and safe to proceed
+		barrier.await();
+		
+		if (Game.DEBUG) {
+			System.out.println("Level: " + (sizeY * sizeX) + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+			gameBoard.debugView(level);
+		}
 	}
 }
