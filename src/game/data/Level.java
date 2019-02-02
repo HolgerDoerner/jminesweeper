@@ -1,7 +1,9 @@
-package game;
+package game.data;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+
+import game.Game;
 
 public final class Level {
 	

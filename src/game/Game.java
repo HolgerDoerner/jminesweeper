@@ -1,6 +1,5 @@
 package game;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.BrokenBarrierException;
@@ -10,31 +9,37 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
+import game.data.Level;
+import game.gui.GameBoard;
+import game.gui.GameDialogs;
+import game.util.SaveGameUtility;
+
 /**
  * main class of the game
  * 
  * @author Holger Dörner
  */
 public class Game {
-	// game constants
-	/////////////////
-	static final char		BOMB			= '@';
-	static final char		EMPTY			= '0';
-	static final char		UNTOUCHED		= 'O';
-	static final char		FLAGGED			= 'P';
-	static final char		FLAGGED_BOMB	= '#';
-	static final boolean	DEBUG			= true;
-
-	// static fields
-	////////////////
-	static ExecutorService	threadPool;
-	static CyclicBarrier	barrier;
-	static char[][]			level;
-	static boolean			isGameRunning	= true;
-	static boolean			isVictory		= false;
-
-	// static private fields
+	// global game constants
 	////////////////////////
+	public static final boolean	DEBUG			= true;
+	public static final char	BOMB			= '@';
+	public static final char	EMPTY			= '0';
+	public static final char	UNTOUCHED		= 'O';
+	public static final char	TOUCHED			= 'X';
+	public static final char	FLAGGED			= 'P';
+	public static final char	FLAGGED_BOMB	= '#';
+
+	// public static fields
+	///////////////////////
+	public static boolean			isGameRunning	= true;
+	public static boolean			isVictory		= false;
+	public static CyclicBarrier		barrier;
+	public static ExecutorService	threadPool;
+
+	// private static fields
+	////////////////////////
+	private static char[][]		level;
 	private static int			sizeY;
 	private static int			sizeX;
 	private static int			numBombs;
@@ -97,27 +102,31 @@ public class Game {
 	/**
 	 * marks field with a flag when the player right-clicks on it
 	 * 
-	 * @param field GameBoard.Field representing an element of the GameBoard in the
-	 *              GUI
+	 * @param positionY the vertical position
+	 * @param positionX the horizontal position
 	 */
-	public static void markField(final GameBoard.Field field) {
-		if (!field.isActive())
-			return;
+	public static synchronized void markField(final int positionY, final int positionX) {
+		switch (level[positionY][positionX]) {
+			case TOUCHED:
+			case FLAGGED:
+			case FLAGGED_BOMB:
+				break;
 
-		threadPool.execute(() -> {
-			switch (level[field.getValueY()][field.getValueX()]) {
-				case Game.BOMB:
-					level[field.getValueY()][field.getValueX()] = Game.FLAGGED_BOMB;
-					field.updateField(level[field.getValueY()][field.getValueX()]);
-					break;
+			case BOMB:
+				level[positionY][positionX] = FLAGGED_BOMB;
+				threadPool.execute(() -> gameBoard.updateField(positionY, positionX, FLAGGED_BOMB));
+				break;
 
-				default:
-					level[field.getValueY()][field.getValueX()] = Game.FLAGGED;
-					field.updateField(level[field.getValueY()][field.getValueX()]);
-					safeFields--;
-					break;
-			}
-		});
+			default:
+				level[positionY][positionX] = FLAGGED;
+				threadPool.execute(() -> gameBoard.updateField(positionY, positionX, FLAGGED));
+				safeFields--;
+				break;
+		}
+
+		if (DEBUG)
+			gameBoard.updateDebugLabel(
+					"Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
 	}
 
 	/**
@@ -125,55 +134,76 @@ public class Game {
 	 * is the case it calls itself in a new process for the neighbor field and so on
 	 * until no neighbor field is left to reveal.
 	 * 
-	 * @param field GameBoard.Field representing an element of the GameBoard in the
-	 *              GUI
+	 * @param positionY the vertical position of the field
+	 * @param positionX the horizontal position of the field
 	 */
-	public static synchronized void reveralField(final GameBoard.Field field) {
-		if (!field.isActive())
-			return;
+	public static synchronized void revealField(final int positionY, final int positionX) {
+		switch (level[positionY][positionX]) {
+			case TOUCHED:
+				return;
 
-		switch (level[field.getValueY()][field.getValueX()]) {
-			// clicking on a bomb is usually a bad idea...
-			case Game.BOMB:
-			case Game.FLAGGED_BOMB:
-				field.updateField(level[field.getValueY()][field.getValueX()]);
+			case BOMB:
+			case FLAGGED_BOMB:
 				gameOver();
-				break;
+				return;
 
-			// if the field is empty (means no neighbor fields are bombs) it will be
-			// it will be revealed and the neighbor fields are checked.
-			case Game.EMPTY:
-				// process the neighbor fields
-				for (Component c : gameBoard.getGameFields()) {
-					if (c instanceof GameBoard.Field) {
-						GameBoard.Field other = (GameBoard.Field) c;
+			case EMPTY:
+				for (int i = -1, j = 1; i <= 1; i++, j--) {
+					if (i == 0)
+						continue;
 
-						for (int i = -1; i <= +1; i++) {
-							if (other.getValueY() == field.getValueY() & other.getValueX() == field.getValueX()) {
-								continue;
-							}
-
-							if ((other.getValueY() == field.getValueY() + i && other.getValueX() == field.getValueX())
-									| (other.getValueX() == field.getValueX() + i
-											&& other.getValueY() == field.getValueY())) {
-								if (level[other.getValueY()][other.getValueX()] == Game.BOMB
-										| level[other.getValueY()][other.getValueX()] == Game.FLAGGED_BOMB) {
-									break;
-								}
-
-								threadPool.execute(() -> reveralField(other));
-							}
-
+					// check left <-> right
+					try {
+						if (level[positionY][positionX + i] != BOMB || level[positionY][positionX + i] != FLAGGED_BOMB
+								|| level[positionY][positionX + i] != TOUCHED) {
+							final int nextX = positionX + i;
+							threadPool.execute(() -> revealField(positionY, nextX));
 						}
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+
+					// check above <-> beneath
+					try {
+						if (level[positionY + i][positionX] != BOMB || level[positionY + i][positionX] != FLAGGED_BOMB
+								|| level[positionY + i][positionX] != TOUCHED) {
+							final int nextY = positionY + i;
+							threadPool.execute(() -> revealField(nextY, positionX));
+						}
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+
+					// check above-left <-> beneath-right
+					try {
+						if (level[positionY + i][positionX + i] != BOMB
+								|| level[positionY + i][positionX + i] != FLAGGED_BOMB
+								|| level[positionY + i][positionX + i] != TOUCHED) {
+							final int nextY = positionY + i;
+							final int nextX = positionX + i;
+							threadPool.execute(() -> revealField(nextY, nextX));
+						}
+					} catch (ArrayIndexOutOfBoundsException e) {
+					}
+
+					// check above-right <-> beneath-left
+					try {
+						if (level[positionY + i][positionX + j] != BOMB
+								|| level[positionY + i][positionX + j] != FLAGGED_BOMB
+								|| level[positionY + i][positionX + j] != TOUCHED) {
+							final int nextY = positionY + i;
+							final int nextX = positionX + j;
+							threadPool.execute(() -> revealField(nextY, nextX));
+						}
+					} catch (ArrayIndexOutOfBoundsException e) {
 					}
 				}
 
-				field.updateField(level[field.getValueY()][field.getValueX()]);
+				gameBoard.updateField(positionY, positionX, level[positionY][positionX]);
+				level[positionY][positionX] = TOUCHED;
 				break;
 
-			// if the value of the field is >0 than only this field gets revealed.
 			default:
-				field.updateField(level[field.getValueY()][field.getValueX()]);
+				gameBoard.updateField(positionY, positionX, level[positionY][positionX]);
+				level[positionY][positionX] = TOUCHED;
 				break;
 		}
 

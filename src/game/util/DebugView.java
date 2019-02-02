@@ -1,6 +1,6 @@
-package game;
+package game.util;
 
-final class DebugView {
+public final class DebugView {
 	private DebugView() {
 	}
 	

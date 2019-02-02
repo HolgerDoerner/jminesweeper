@@ -1,4 +1,4 @@
-package game;
+package game.gui;
 
 import java.awt.GridLayout;
 import java.nio.file.Path;
@@ -9,11 +9,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-final class GameDialogs {
+import game.Game;
+
+public final class GameDialogs {
 	private GameDialogs() {
 	}
 	
-	static int[] showNewGameDialog() {
+	public static int[] showNewGameDialog() {
 		final JLabel lblSizeY = new JLabel("Size Y:");
 		final JLabel lblSizeX = new JLabel("Size X:");
 		final JLabel lblNumBombs = new JLabel("Number of Bombs:");

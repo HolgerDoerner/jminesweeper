@@ -1,11 +1,11 @@
-package game;
+package game.util;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-final class SaveGameUtility {
+public final class SaveGameUtility {
 	public static char[][] readFromFile(Path filePath) throws IOException {
 		if (filePath == null)
 			return null;
