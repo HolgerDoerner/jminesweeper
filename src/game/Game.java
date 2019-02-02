@@ -55,32 +55,41 @@ public class Game {
 	 * value by 1.
 	 */
 	private static synchronized void calculateFields() {
+		Thread.currentThread().setName("Calculate-Fields");
+		
 		for (int y = 0; y < level.length; y++) {
 			for (int x = 0; x < level[y].length; x++) {
 				if (level[y][x] == 'O') {
 					level[y][x] = '0';
 
 					for (int i = -1, j = 1; i <= 1; i++, j--) {
+						// above-right <-> beneath-left
 						try {
-							if (level[y + i][x + j] == '@') {
+							if (level[y + i][x + j] == BOMB) {
 								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
+						
+						// above-left <-> beneath-right
 						try {
-							if (level[y + i][x + i] == '@') {
+							if (level[y + i][x + i] == BOMB) {
 								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
+						
+						// above <-> beneath
 						try {
-							if (level[y][x + i] == '@') {
+							if (level[y][x + i] == BOMB) {
 								level[y][x]++;
 							}
 						} catch (Exception e) {
 						}
+						
+						// left <-> right
 						try {
-							if (level[y + i][x] == '@') {
+							if (level[y + i][x] == BOMB) {
 								level[y][x]++;
 							}
 						} catch (Exception e) {
@@ -138,6 +147,8 @@ public class Game {
 	 * @param positionX the horizontal position of the field
 	 */
 	public static synchronized void revealField(final int positionY, final int positionX) {
+		Thread.currentThread().setName("Revealing-Field-" + positionY + "x" + positionX);
+		
 		switch (level[positionY][positionX]) {
 			case TOUCHED:
 				return;
@@ -256,6 +267,8 @@ public class Game {
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
 		threadPool = Executors.newFixedThreadPool(4);
 		barrier = new CyclicBarrier(3);
+		
+		Thread.currentThread().setName("Main");
 
 		// ask user what to do: new game, load game or cancel.
 		int userChoice = JOptionPane.showOptionDialog(null, "Choose wisely...", "New Game",

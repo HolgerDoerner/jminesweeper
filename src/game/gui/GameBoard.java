@@ -8,8 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 
 import javax.swing.Box;
@@ -26,7 +26,7 @@ import javax.swing.JSeparator;
 import game.Game;
 
 /**
- * class for generating the gui
+ * main user interface of the game
  * 
  * @author Holger Dörner
  * 
@@ -39,9 +39,9 @@ public class GameBoard extends JFrame implements Runnable {
 	private final JLabel	lblSmiley	= new JLabel();
 	private final JLabel	lblDebug	= new JLabel();
 
-	private final int	sizeY;
-	private final int	sizeX;
-	private List<Field>	gameFields;
+	private final int			sizeY;
+	private final int			sizeX;
+	private Map<String, Field>	gameFields;
 
 	/**
 	 * inner class encapsulating the logic for the fields
@@ -126,8 +126,8 @@ public class GameBoard extends JFrame implements Runnable {
 			this.positionY = y;
 			this.positionX = x;
 
-			this.setPreferredSize(new Dimension(50, 50));
-			this.setFont(new Font(null, Font.PLAIN, 40));
+			this.setPreferredSize(new Dimension(40, 40));
+			this.setFont(new Font(null, Font.PLAIN, 30));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
 
@@ -195,7 +195,7 @@ public class GameBoard extends JFrame implements Runnable {
 					this.setBackground(Color.GRAY);
 					this.active = false;
 					break;
-					
+
 				// safe field. just give values >0 some color.
 				default:
 					this.setBackground(Color.GRAY);
@@ -254,7 +254,7 @@ public class GameBoard extends JFrame implements Runnable {
 	 * 
 	 * @return a list of all fields on the gameboard
 	 */
-	List<Field> getGameFields() {
+	Map<String, Field> getGameFields() {
 		return this.gameFields;
 	}
 
@@ -264,15 +264,14 @@ public class GameBoard extends JFrame implements Runnable {
 	 * @param data the level data
 	 */
 	public void updateAllFields(final char[][] data) {
-		gameFields.stream().forEach(field -> {
+		gameFields.values().stream().filter(field -> field.isActive()).forEach(field -> {
 			field.updateField(data[field.getPositionY()][field.getPositionX()]);
 			field.setActive(false);
 		});
 	}
 
 	public void updateField(final int y, final int x, final char status) {
-		gameFields.stream().filter(field -> (field.positionY == y) & (field.positionX == x))
-				.forEach(field -> field.updateField(status));
+		gameFields.get(y + "-" + x).updateField(status);
 	}
 
 	/**
@@ -309,8 +308,8 @@ public class GameBoard extends JFrame implements Runnable {
 	 * 
 	 * @param data an array containing the level data
 	 */
-	 public void debugView(char[][] data) {
-		for (Field field : gameFields) {
+	public void debugView(char[][] data) {
+		for (Field field : gameFields.values()) {
 			field.setDebugText(data[field.getPositionY()][field.getPositionX()]);
 		}
 	}
@@ -329,6 +328,8 @@ public class GameBoard extends JFrame implements Runnable {
 	 */
 	@Override
 	public void run() {
+		Thread.currentThread().setName("User-Interface");
+
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
 		this.lblSmiley.setAlignmentX(CENTER_ALIGNMENT);
 		this.lblSmiley.setText(Character.toString(0x1F60A));
@@ -341,12 +342,12 @@ public class GameBoard extends JFrame implements Runnable {
 
 		this.pnlMain.setLayout(new GridLayout(sizeY, sizeX));
 
-		this.gameFields = new LinkedList<>();
+		this.gameFields = new LinkedHashMap<>();
 
 		for (int i = 0; i < sizeY; i++) {
 			for (int j = 0; j < sizeX; j++) {
 				Field f = new Field(i, j);
-				this.gameFields.add(f);
+				this.gameFields.put(i + "-" + j, f);
 				this.pnlMain.add(f);
 
 				if (Game.DEBUG)
@@ -364,7 +365,7 @@ public class GameBoard extends JFrame implements Runnable {
 		if (Game.DEBUG)
 			this.add(lblDebug, BorderLayout.SOUTH);
 
-		this.setTitle("Minesweeper");
+		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
