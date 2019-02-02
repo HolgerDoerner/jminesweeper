@@ -26,7 +26,7 @@ import javax.swing.JSeparator;
 /**
  * class for generating the gui
  * 
- * @author Holger Dörner {@link https://github.con/holgerdoerner/jminesweeper}
+ * @author Holger Dörner
  * 
  */
 class GameBoard extends JFrame implements Runnable {
@@ -44,7 +44,7 @@ class GameBoard extends JFrame implements Runnable {
 	/**
 	 * inner class encapsulating the logic for the fields
 	 * 
-	 * @author Holger Dörner {@link https://github.con/holgerdoerner/jminesweeper}
+	 * @author Holger Dörner
 	 * 
 	 */
 	class Field extends JButton {
@@ -76,7 +76,7 @@ class GameBoard extends JFrame implements Runnable {
 		}
 		
 		/**
-		 * getter to retrieve the status of the field.
+		 * getter to retrieve the status of a field.
 		 * 
 		 * true = the field wasn't revealed. false = the field is revealed.
 		 * 
@@ -90,9 +90,12 @@ class GameBoard extends JFrame implements Runnable {
 		/**
 		 * setter to set the status of the field.
 		 * 
-		 * true = the field wasn't revealed. false = the field is revealed.
+		 * <ul>
+		 * 	<li>true = the field wasn't revealed</li>
+		 * 	<li>false = the field is revealed</li>
+		 * </ul>
 		 * 
-		 * @param boolean indicating the new status of the field
+		 * @param active indicating the new status of the field
 		 * 
 		 */
 		private void setActive(boolean active) {
@@ -135,14 +138,14 @@ class GameBoard extends JFrame implements Runnable {
 					else if (e.getButton() == MouseEvent.BUTTON3) // right mouse-button
 						Game.markField(_this_);
 					
-					updateSmilie(1); // update smiley when mousebutton is pressed
+					updateSmilie(1); // update smiley when mouse-button is pressed
 					
 					if (Game.DEBUG)
 						System.out.println("Clicked Field: " + _this_.getValueY() + "x" + _this_.getValueX()
 								+ " Mouse-Button: " + e.getButton());
 				}
 				
-				// reset smiley when mousebutton is released
+				// reset smiley when mouse-button is released
 				@Override
 				public void mousePressed(MouseEvent e) {
 					updateSmilie(0);
@@ -151,9 +154,9 @@ class GameBoard extends JFrame implements Runnable {
 		}
 		
 		/**
-		 * lets a field update itseld and reveal what's underneath
+		 * lets a field update itself and reveal what's underneath
 		 * 
-		 * @param fieldValue repesents the status hidden under the field
+		 * @param fieldValue represents the status hidden under the field
 		 * 
 		 */
 		void updateField(final char fieldValue) {
@@ -207,7 +210,7 @@ class GameBoard extends JFrame implements Runnable {
 	/**
 	 * inner class encapsulating the logic for the menubar.
 	 * 
-	 * Holger Dörner {@link https://github.con/holgerdoerner/jminesweeper}
+	 * Holger Dörner
 	 *
 	 */
 	private class MainMenu extends JMenuBar {
@@ -230,7 +233,7 @@ class GameBoard extends JFrame implements Runnable {
 	}
 	
 	/**
-	 * construcktor for the gameboard
+	 * constructor for the gameboard
 	 * 
 	 * @param sizeY the vertical size of the board
 	 * @param sizeX the horizontal size of the board
@@ -290,7 +293,8 @@ class GameBoard extends JFrame implements Runnable {
 	}
 	
 	/**
-	 * only used when Game.DEBUG is set. shows the raw level-data on the fields.
+	 * shows the raw level-data on the fields.
+	 * only used when Game.DEBUG is set.
 	 * 
 	 * @param data an array containing the level data
 	 */
@@ -300,6 +304,13 @@ class GameBoard extends JFrame implements Runnable {
 		}
 	}
 	
+	
+	/**
+	 * updates the label beneath the gamefield.
+	 * only used in debug-mode
+	 * 
+	 * @param debugText a java.lang.String containing the text to display
+	 */
 	void updateDebugLabel(String debugText) {
 		this.lblDebug.setText(debugText);
 	}
