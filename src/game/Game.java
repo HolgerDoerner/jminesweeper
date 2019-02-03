@@ -2,6 +2,8 @@ package game;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -32,8 +34,9 @@ public class Game {
 
 	// public static fields
 	///////////////////////
-	public static boolean			isGameRunning	= true;
-	public static boolean			isVictory		= false;
+	public static boolean			newGame		= true;
+	public static boolean			gameRunning	= true;
+	public static boolean			victory		= false;
 	public static CyclicBarrier		barrier;
 	public static ExecutorService	threadPool;
 
@@ -45,6 +48,7 @@ public class Game {
 	private static int			numBombs;
 	private static int			safeFields;
 	private static GameBoard	gameBoard;
+	private static Map<String, Character> touchedFields; 
 
 	/**
 	 * calculates the fields of an level and updates the array before the game
@@ -56,7 +60,7 @@ public class Game {
 	 */
 	private static synchronized void calculateFields() {
 		Thread.currentThread().setName("Calculate-Fields");
-		
+
 		for (int y = 0; y < level.length; y++) {
 			for (int x = 0; x < level[y].length; x++) {
 				if (level[y][x] == 'O') {
@@ -70,7 +74,7 @@ public class Game {
 							}
 						} catch (Exception e) {
 						}
-						
+
 						// above-left <-> beneath-right
 						try {
 							if (level[y + i][x + i] == BOMB) {
@@ -78,7 +82,7 @@ public class Game {
 							}
 						} catch (Exception e) {
 						}
-						
+
 						// above <-> beneath
 						try {
 							if (level[y][x + i] == BOMB) {
@@ -86,7 +90,7 @@ public class Game {
 							}
 						} catch (Exception e) {
 						}
-						
+
 						// left <-> right
 						try {
 							if (level[y + i][x] == BOMB) {
@@ -148,7 +152,7 @@ public class Game {
 	 */
 	public static synchronized void revealField(final int positionY, final int positionX) {
 		Thread.currentThread().setName("Revealing-Field-" + positionY + "x" + positionX);
-		
+
 		switch (level[positionY][positionX]) {
 			case TOUCHED:
 				return;
@@ -232,7 +236,7 @@ public class Game {
 	 * player clicked on a bomb-field, too bad...
 	 */
 	private static void gameOver() {
-		isGameRunning = false;
+		gameRunning = false;
 		gameBoard.updateSmilie(3);
 		gameBoard.updateAllFields(level);
 
@@ -245,8 +249,8 @@ public class Game {
 	 * player has revealed all save fields in the level.
 	 */
 	private static void gameVictory() {
-		isGameRunning = false;
-		isVictory = true;
+		gameRunning = false;
+		victory = true;
 
 		gameBoard.updateSmilie(2);
 		gameBoard.updateAllFields(level);
@@ -258,6 +262,109 @@ public class Game {
 	}
 
 	/**
+	 * saves the current level to a file on disc and produces some kind of
+	 * 'savegame'. if the file already exists it will be ovewritten, if not a new
+	 * file will be created.
+	 * 
+	 * @param path a path to a file on disc
+	 */
+	public static void saveToFile(Path path) {
+		try {
+			SaveGameUtility.saveToFile(path, level);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * loads a level from a file
+	 */
+	public static void loadFromFile() {
+		Path filePath = GameDialogs.showLoadGameDialog();
+
+		if (Game.DEBUG)
+			System.out.println("Loading level from file: " + filePath);
+
+		if (filePath == null)
+			System.exit(0);
+
+		try {
+			level = SaveGameUtility.readFromFile(filePath);
+		} catch (IOException e) {
+			if (Game.DEBUG)
+				e.printStackTrace();
+			System.exit(1);
+		} finally {
+			if (level == null)
+				System.exit(1);
+		}
+
+		sizeY = level.length;
+		sizeX = level[0].length;
+
+//		for (char[] c1 : level) {
+//			for (char c2 : c1) {
+//				if (c2 == BOMB)
+//					numBombs++;
+//				else if (c2 != TOUCHED)
+//					safeFields++;
+//			}
+//		}
+
+		touchedFields = new LinkedHashMap<>();
+		
+		for (int i = 0; i < sizeY; i++) {
+			for (int j = 0; j < sizeX; j++) {
+				switch (level[i][j]) {
+					case BOMB:
+						numBombs++;
+						break;
+					case FLAGGED_BOMB:
+						touchedFields.put(i + "-" + j, level[i][j]);
+						numBombs++;
+						break;
+					case TOUCHED:
+						touchedFields.put(i + "-" + j, level[i][j]);
+						break;
+					case FLAGGED:
+						touchedFields.put(i + "-" + j, level[i][j]);
+						safeFields++;
+						break;
+					default:
+						safeFields++;
+						break;
+				}
+			}
+		}
+
+		newGame = false;
+
+		gameBoard = new GameBoard(sizeY, sizeX);
+	}
+
+	/**
+	 * start a new game and present a dialog letting the player make the desired
+	 * settings. generates a random level based on user choices.
+	 */
+	public static void newGame() {
+		int[] newSettings = GameDialogs.showNewGameDialog();
+
+		if (newSettings == null)
+			System.exit(0);
+
+		sizeY = newSettings[0];
+		sizeX = newSettings[1];
+		numBombs = newSettings[2];
+
+		// determine the number of safe fields in the level
+		safeFields = (sizeY * sizeX) - numBombs;
+
+		level = Level.newLevel(sizeY, sizeX, numBombs);
+		gameBoard = new GameBoard(sizeY, sizeX);
+	}
+
+	/**
 	 * entry point of the game
 	 * 
 	 * @param args
@@ -266,8 +373,7 @@ public class Game {
 	 */
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
 		threadPool = Executors.newFixedThreadPool(4);
-		barrier = new CyclicBarrier(3);
-		
+
 		Thread.currentThread().setName("Main");
 
 		// ask user what to do: new game, load game or cancel.
@@ -278,69 +384,39 @@ public class Game {
 		switch (userChoice) {
 			// start a new game
 			case 0:
-				int[] newSettings = GameDialogs.showNewGameDialog();
-
-				if (newSettings == null)
-					System.exit(0);
-
-				sizeY = newSettings[0];
-				sizeX = newSettings[1];
-				numBombs = newSettings[2];
-
-				level = Level.newLevel(sizeY, sizeX, numBombs);
-				gameBoard = new GameBoard(sizeY, sizeX);
+				newGame();
+				barrier = new CyclicBarrier(3, () -> {
+					if (DEBUG)
+						System.out.println("Barrier - - - GAME START - - - breached.");
+				});
 				break;
 
 			// load game from file
 			case 1:
-				Path filePath = GameDialogs.showLoadGameDialog();
-
-				if (Game.DEBUG)
-					System.out.println(filePath);
-
-				if (filePath == null)
-					System.exit(0);
-
-				try {
-					level = SaveGameUtility.readFromFile(filePath);
-				} catch (IOException e) {
-					if (Game.DEBUG)
-						e.printStackTrace();
-					System.exit(1);
-				} finally {
-					if (level == null)
-						System.exit(1);
-				}
-
-				sizeY = level.length;
-				sizeX = level[0].length;
-
-				for (char[] c1 : level) {
-					for (char c2 : c1) {
-						if (c2 == '@')
-							numBombs++;
-					}
-				}
-
-				System.out.println(numBombs);
-
-				gameBoard = new GameBoard(sizeY, sizeX);
+				loadFromFile();
+				barrier = new CyclicBarrier(2, () -> {
+					if (DEBUG)
+						System.out.println("Barrier - - - GAME START - - - breached.");
+				});
 				break;
 
-			// user clicked 'cancel'
+			// user clicked 'cancel' or an error occurred
 			default:
 				System.exit(0);
 		}
 
-		safeFields = (sizeY * sizeX) - numBombs;
-
 		// calculate the level and the gui in separate threads
 		threadPool.execute(gameBoard);
-		threadPool.execute(() -> calculateFields());
+
+		if (newGame)
+			threadPool.execute(() -> calculateFields());
 
 		// wait here for the previous tasks to finish to make sure
 		// everything is nice and safe to proceed
 		barrier.await();
+
+		if (!newGame)
+			gameBoard.updateTouchedFields(touchedFields);
 
 		if (Game.DEBUG) {
 			gameBoard.updateDebugLabel(

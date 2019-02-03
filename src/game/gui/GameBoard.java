@@ -15,6 +15,7 @@ import java.util.concurrent.BrokenBarrierException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -172,7 +173,7 @@ public class GameBoard extends JFrame implements Runnable {
 				case Game.BOMB:
 					this.setText(Character.toString(0x1F571));
 
-					if (Game.isVictory)
+					if (Game.victory)
 						this.setBackground(Color.GREEN);
 					else
 						this.setBackground(Color.RED);
@@ -183,7 +184,7 @@ public class GameBoard extends JFrame implements Runnable {
 				case Game.FLAGGED_BOMB:
 					this.setText(Character.toString(0x2691));
 
-					if (!Game.isGameRunning)
+					if (!Game.gameRunning)
 						this.setBackground(Color.GREEN);
 					else
 						this.setBackground(Color.YELLOW);
@@ -228,7 +229,26 @@ public class GameBoard extends JFrame implements Runnable {
 		private final JMenuItem		saveMenuItem	= new JMenuItem("Save");
 		private final JMenuItem		exitMenuItem	= new JMenuItem("Exit");
 
+		/**
+		 * lets the player save the current level to a file. some kind of savegame.
+		 */
+		private void save() {
+			JFileChooser fileChooser = new JFileChooser();
+			int userChoice = fileChooser.showSaveDialog(this);
+
+			switch (userChoice) {
+				case JFileChooser.APPROVE_OPTION:
+					Game.saveToFile(fileChooser.getSelectedFile().toPath());
+					break;
+
+				case JFileChooser.CANCEL_OPTION:
+				case JFileChooser.ERROR_OPTION:
+					break;
+			}
+		}
+
 		private MainMenu() {
+			saveMenuItem.addActionListener(e -> save());
 			exitMenuItem.addActionListener(e -> System.exit(0));
 
 			fileMenu.add(saveMenuItem);
@@ -265,17 +285,45 @@ public class GameBoard extends JFrame implements Runnable {
 	 */
 	public void updateAllFields(final char[][] data) {
 		gameFields.values().stream().filter(field -> field.isActive()).forEach(field -> {
-			field.updateField(data[field.getPositionY()][field.getPositionX()]);
-			field.setActive(false);
+			Game.threadPool.execute(() -> {
+				field.updateField(data[field.getPositionY()][field.getPositionX()]);
+				field.setActive(false);
+			});
 		});
 	}
 
+	/**
+	 * updates a single field on the gameboard.
+	 * 
+	 * @param y      the vertical position on the gameboard
+	 * @param x      the horizontal position on the gameboard
+	 * @param status the status for the field to set
+	 */
 	public void updateField(final int y, final int x, final char status) {
 		gameFields.get(y + "-" + x).updateField(status);
 	}
 
 	/**
+	 * updates already touched fields. used when a level is loaded from file.
+	 * 
+	 * @param touchedFields a java.util.Map containing the touched fields. key is in
+	 *                      format '0-0' (position), value is the status of the
+	 *                      field to display.
+	 */
+	public void updateTouchedFields(final Map<String, Character> touchedFields) {
+		touchedFields.entrySet().forEach(
+				entry -> Game.threadPool.execute(() -> gameFields.get(entry.getKey()).updateField(entry.getValue())));
+	}
+
+	/**
 	 * most important method in the game, makes the smiley alive ;-)
+	 * 
+	 * <ul>
+	 * <li>0 - mouse down</li>
+	 * <li>1 - mouse up</li>
+	 * <li>2 - victory</li>
+	 * <li>3 - defeat</li>
+	 * </ul>
 	 * 
 	 * @param status the status of the smiley (0-3)
 	 */
