@@ -260,6 +260,13 @@ public class GameBoard extends JFrame implements Runnable {
 		return this.gameFields;
 	}
 	
+	/**
+	 * updates touched fields on the gameboard when a level is loaded from file.
+	 * 
+	 * format for the key is 'y-x'.
+	 * 
+	 * @param touchedFields a java.util.Map containing the field-data
+	 */
 	public void updateTouchedFields(final Map<String, Character> touchedFields) {
 		touchedFields.entrySet().forEach(entry -> Game.threadPool.execute(() -> gameFields.get(entry.getKey()).updateField(entry.getValue())));
 	}

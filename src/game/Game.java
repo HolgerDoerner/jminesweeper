@@ -25,7 +25,7 @@ import game.util.SaveGameUtility;
 public class Game {
 	// global game constants
 	////////////////////////
-	public static final boolean	DEBUG			= true;
+	public static final boolean	DEBUG			= false;
 	public static final char	BOMB			= '@';
 	public static final char	EMPTY			= '0';
 	public static final char	UNTOUCHED		= 'O';
@@ -135,6 +135,9 @@ public class Game {
 		if (DEBUG)
 			gameBoard.updateDebugLabel(
 					"Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		
+		if (safeFields == 0)
+			gameVictory();
 	}
 	
 	/**
@@ -314,7 +317,6 @@ public class Game {
 				}
 				else if (level[i][j] == FLAGGED) {
 					touchedFields.put(i + "-" + j, level[i][j]);
-					safeFields++;
 				}
 				else if (level[i][j] >= 'A') {
 					touchedFields.put(i + "-" + j, (char)(level[i][j] - 17));
@@ -349,6 +351,10 @@ public class Game {
 		gameBoard = new GameBoard(sizeY, sizeX);
 	}
 	
+	/**
+	 * prints the current level-layout to console.
+	 * only used when DEBUG=true.
+	 */
 	public static void printLevel() {
 		DebugView.printLevel(level);
 	}
@@ -394,9 +400,8 @@ public class Game {
 				System.exit(0);
 		}
 		
-		// calculate the level and render the gui in separate threads
+		// calculate the level (if nessesary) and render the gui in separate threads
 		threadPool.execute(gameBoard);
-		
 		if (newGame)
 			threadPool.execute(() -> calculateFields());
 		
