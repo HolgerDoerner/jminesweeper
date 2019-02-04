@@ -33,7 +33,7 @@ public final class GameDialogs {
 		panel.add(lblNumBombs);
 		panel.add(txtNumBombs);
 		
-		int userChoice = JOptionPane.showConfirmDialog(null, panel, "New Game", JOptionPane.OK_OPTION);
+		int userChoice = JOptionPane.showConfirmDialog(null, panel, "jMinesweeper - New Game", JOptionPane.OK_OPTION);
 		
 		switch (userChoice) {
 			case JOptionPane.OK_OPTION:
@@ -46,35 +46,14 @@ public final class GameDialogs {
 				} catch (NumberFormatException e) {
 					if (Game.DEBUG)
 						e.printStackTrace();
+					return null;
 				}
 				
 				return new int[] { y, x, b };
 				
-			case JOptionPane.CANCEL_OPTION:
-			case JOptionPane.ERROR:
-				return null;
-				
 			default:
 				return null;
-		}
-		
-//		if (userChoice == 0) {
-//			int y = 0, x = 0, b = 0;
-//			
-//			try {
-//				y = Integer.parseInt(txtSizeY.getText());
-//				x = Integer.parseInt(txtSizeX.getText());
-//				b = Integer.parseInt(txtNumBombs.getText());
-//			} catch (NumberFormatException e) {
-//				if (Game.DEBUG)
-//					e.printStackTrace();
-//			}
-//			
-//			return new int[] { y, x, b };
-//		} else {
-//			return null;
-//		}
-		
+		}		
 	}
 	
 	public static Path showLoadGameDialog() {

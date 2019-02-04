@@ -91,21 +91,6 @@ public class GameBoard extends JFrame implements Runnable {
 		}
 
 		/**
-		 * setter to set the status of the field.
-		 * 
-		 * <ul>
-		 * <li>true = the field wasn't revealed</li>
-		 * <li>false = the field is revealed</li>
-		 * </ul>
-		 * 
-		 * @param active indicating the new status of the field
-		 * 
-		 */
-		private void setActive(boolean active) {
-			this.active = active;
-		}
-
-		/**
 		 * only used when global debugging is on.
 		 * 
 		 * @param text the character in the level on the position of this field
@@ -165,8 +150,12 @@ public class GameBoard extends JFrame implements Runnable {
 		void updateField(final char fieldValue) {
 			switch (fieldValue) {
 				case Game.FLAGGED:
-					this.setBackground(Color.YELLOW);
+				case Game.FLAGGED_BOMB:
 					this.setText(Character.toString(0x2691));
+					if (!Game.gameRunning)
+						this.setBackground(Color.GREEN);
+					else
+						this.setBackground(Color.YELLOW);
 					this.active = false;
 					break;
 
@@ -181,26 +170,10 @@ public class GameBoard extends JFrame implements Runnable {
 					this.active = false;
 					break;
 
-				case Game.FLAGGED_BOMB:
-					this.setText(Character.toString(0x2691));
-
-					if (!Game.gameRunning)
-						this.setBackground(Color.GREEN);
-					else
-						this.setBackground(Color.YELLOW);
-
-					this.active = false;
-					break;
-
-				case Game.TOUCHED:
-					this.setBackground(Color.GRAY);
-					this.active = false;
-					break;
-
 				// safe field. just give values >0 some color.
 				default:
 					this.setBackground(Color.GRAY);
-					if (fieldValue > '0') {
+					if (fieldValue > Game.EMPTY) {
 						this.setText("" + fieldValue);
 						if (fieldValue == '1')
 							this.setForeground(Color.GREEN);
@@ -225,9 +198,11 @@ public class GameBoard extends JFrame implements Runnable {
 		private static final long serialVersionUID = 1L;
 
 		private final JMenu			fileMenu		= new JMenu("File");
+		private final JMenu			debugMenu		= new JMenu("Debug");
 		private final JSeparator	menuSeparator	= new JSeparator();
 		private final JMenuItem		saveMenuItem	= new JMenuItem("Save");
 		private final JMenuItem		exitMenuItem	= new JMenuItem("Exit");
+		private final JMenuItem		dbgPrintMenuItem = new JMenuItem("Print level to console");
 
 		/**
 		 * lets the player save the current level to a file. some kind of savegame.
@@ -250,12 +225,19 @@ public class GameBoard extends JFrame implements Runnable {
 		private MainMenu() {
 			saveMenuItem.addActionListener(e -> save());
 			exitMenuItem.addActionListener(e -> System.exit(0));
+			
+			dbgPrintMenuItem.addActionListener(e -> Game.printLevel());
 
 			fileMenu.add(saveMenuItem);
 			fileMenu.add(menuSeparator);
 			fileMenu.add(exitMenuItem);
+			
+			debugMenu.add(dbgPrintMenuItem);
 
 			this.add(fileMenu);
+			
+			if (Game.DEBUG)
+				this.add(debugMenu);
 		}
 	}
 
@@ -277,6 +259,10 @@ public class GameBoard extends JFrame implements Runnable {
 	Map<String, Field> getGameFields() {
 		return this.gameFields;
 	}
+	
+	public void updateTouchedFields(final Map<String, Character> touchedFields) {
+		touchedFields.entrySet().forEach(entry -> Game.threadPool.execute(() -> gameFields.get(entry.getKey()).updateField(entry.getValue())));
+	}
 
 	/**
 	 * updates all fields on the board
@@ -287,7 +273,6 @@ public class GameBoard extends JFrame implements Runnable {
 		gameFields.values().stream().filter(field -> field.isActive()).forEach(field -> {
 			Game.threadPool.execute(() -> {
 				field.updateField(data[field.getPositionY()][field.getPositionX()]);
-				field.setActive(false);
 			});
 		});
 	}
@@ -301,18 +286,6 @@ public class GameBoard extends JFrame implements Runnable {
 	 */
 	public void updateField(final int y, final int x, final char status) {
 		gameFields.get(y + "-" + x).updateField(status);
-	}
-
-	/**
-	 * updates already touched fields. used when a level is loaded from file.
-	 * 
-	 * @param touchedFields a java.util.Map containing the touched fields. key is in
-	 *                      format '0-0' (position), value is the status of the
-	 *                      field to display.
-	 */
-	public void updateTouchedFields(final Map<String, Character> touchedFields) {
-		touchedFields.entrySet().forEach(
-				entry -> Game.threadPool.execute(() -> gameFields.get(entry.getKey()).updateField(entry.getValue())));
 	}
 
 	/**

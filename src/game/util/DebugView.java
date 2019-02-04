@@ -15,10 +15,5 @@ public final class DebugView {
 			
 			System.out.println();
 		}
-		
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
 	}
 }
