@@ -42,7 +42,7 @@ public class Game {
 	
 	// private static fields
 	////////////////////////
-	private static char[][]					level;
+	private static Level					level;
 	private static int						sizeY;
 	private static int						sizeX;
 	private static int						numBombs;
@@ -61,37 +61,37 @@ public class Game {
 	private static synchronized void calculateFields() {
 		Thread.currentThread().setName("Calculate-Fields");
 		
-		for (int y = 0; y < level.length; y++) {
-			for (int x = 0; x < level[y].length; x++) {
-				if (level[y][x] == UNTOUCHED) {
-					level[y][x] = EMPTY;
+		for (int y = 0; y < level.getSizeY(); y++) {
+			for (int x = 0; x < level.getSizeX(); x++) {
+				if (level.get(y, x) == UNTOUCHED) {
+					level.set(y, x, EMPTY);
 					
 					for (int i = -1, j = 1; i <= 1; i++, j--) {
 						// above-right <-> beneath-left
 						try {
-							if (level[y + i][x + j] == BOMB)
-								level[y][x]++;
+							if (level.get(y + i, x + j) == BOMB)
+								level.increment(y, x);
 						} catch (Exception e) {
 						}
 						
 						// above-left <-> beneath-right
 						try {
-							if (level[y + i][x + i] == BOMB)
-								level[y][x]++;
+							if (level.get(y + i, x + i) == BOMB)
+								level.increment(y, x);
 						} catch (Exception e) {
 						}
 						
 						// above <-> beneath
 						try {
-							if (level[y][x + i] == BOMB)
-								level[y][x]++;
+							if (level.get(y, x + i) == BOMB)
+								level.increment(y, x);
 						} catch (Exception e) {
 						}
 						
 						// left <-> right
 						try {
-							if (level[y + i][x] == BOMB)
-								level[y][x]++;
+							if (level.get(y + i, x) == BOMB)
+								level.increment(y, x);
 						} catch (Exception e) {
 						}
 					}
@@ -115,18 +115,18 @@ public class Game {
 	 * @param positionX the horizontal position
 	 */
 	public static synchronized void markField(final int positionY, final int positionX) {
-		switch (level[positionY][positionX]) {
+		switch (level.get(positionY, positionX)) {
 			case FLAGGED:
 			case FLAGGED_BOMB:
 				break;
 			
 			case BOMB:
-				level[positionY][positionX] = FLAGGED_BOMB;
+				level.set(positionY, positionX, FLAGGED_BOMB);
 				threadPool.execute(() -> gameBoard.updateField(positionY, positionX, FLAGGED_BOMB));
 				break;
 			
 			default:
-				level[positionY][positionX] = FLAGGED;
+				level.set(positionY, positionX, FLAGGED);
 				threadPool.execute(() -> gameBoard.updateField(positionY, positionX, FLAGGED));
 				safeFields--;
 				break;
@@ -151,23 +151,23 @@ public class Game {
 	public static synchronized void revealField(final int positionY, final int positionX) {
 		Thread.currentThread().setName("Revealing-Field-" + positionY + "x" + positionX);
 		
-		if (level[positionY][positionX] >= 'A') return;
-		else if (level[positionY][positionX] == BOMB) {
+		if (level.get(positionY, positionX) >= 'A') return;
+		else if (level.get(positionY, positionX) == BOMB) {
 			gameOver();
 			return;
 		}
-		else if (level[positionY][positionX] == FLAGGED_BOMB);
-		else if (level[positionY][positionX] == EMPTY) {
+		else if (level.get(positionY, positionX) == FLAGGED_BOMB);
+		else if (level.get(positionY, positionX) == EMPTY) {
 			for (int i = -1, j = 1; i <= 1; i++, j--) {
 				if (i == 0)
 					continue;
 				
 				// check left <-> right
 				try {
-					if (level[positionY][positionX + i] == BOMB);
-					else if (level[positionY][positionX + i] == FLAGGED_BOMB);
-					else if (level[positionY][positionX + i] == FLAGGED);
-					else if (level[positionY][positionX + i] >= 'A');
+					if (level.get(positionY, positionX + i) == BOMB);
+					else if (level.get(positionY, positionX + i) == FLAGGED_BOMB);
+					else if (level.get(positionY, positionX + i) == FLAGGED);
+					else if (level.get(positionY, positionX + i) >= 'A');
 					else {
 						final int nextX = positionX + i;
 						threadPool.execute(() -> revealField(positionY, nextX));
@@ -177,10 +177,10 @@ public class Game {
 				
 				// check above <-> beneath
 				try {
-					if (level[positionY + i][positionX] == BOMB);
-					else if (level[positionY + i][positionX] == FLAGGED_BOMB);
-					else if (level[positionY + i][positionX] == FLAGGED);
-					else if (level[positionY + i][positionX] >= 'A');
+					if (level.get(positionY + i, positionX) == BOMB);
+					else if (level.get(positionY + i, positionX) == FLAGGED_BOMB);
+					else if (level.get(positionY + i, positionX) == FLAGGED);
+					else if (level.get(positionY + i, positionX) >= 'A');
 					else {
 						final int nextY = positionY + i;
 						threadPool.execute(() -> revealField(nextY, positionX));
@@ -190,10 +190,10 @@ public class Game {
 				
 				// check above-left <-> beneath-right
 				try {
-					if (level[positionY + i][positionX + i] == BOMB);
-					else if (level[positionY + i][positionX + i] == FLAGGED_BOMB);
-					else if (level[positionY + i][positionX + i] == FLAGGED);
-					else if (level[positionY + i][positionX + i] >= 'A');
+					if (level.get(positionY + i, positionX + i) == BOMB);
+					else if (level.get(positionY + i, positionX + i) == FLAGGED_BOMB);
+					else if (level.get(positionY + i, positionX + i) == FLAGGED);
+					else if (level.get(positionY + i, positionX + i) >= 'A');
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + i;
@@ -204,10 +204,10 @@ public class Game {
 				
 				// check above-right <-> beneath-left
 				try {
-					if (level[positionY + i][positionX + j] == BOMB);
-					else if (level[positionY + i][positionX + j] == FLAGGED_BOMB);
-					else if (level[positionY + i][positionX + j] == FLAGGED);
-					else if (level[positionY + i][positionX + j] >= 'A');
+					if (level.get(positionY + i, positionX + j) == BOMB);
+					else if (level.get(positionY + i, positionX + j) == FLAGGED_BOMB);
+					else if (level.get(positionY + i, positionX + j) == FLAGGED);
+					else if (level.get(positionY + i, positionX + j) >= 'A');
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + j;
@@ -217,11 +217,11 @@ public class Game {
 				}
 			}
 			
-			gameBoard.updateField(positionY, positionX, level[positionY][positionX]);
-			level[positionY][positionX] += 17;
+			gameBoard.updateField(positionY, positionX, level.get(positionY, positionX));
+			level.set(positionY, positionX, (char)(level.get(positionY, positionX) + 17));
 		} else {
-			gameBoard.updateField(positionY, positionX, level[positionY][positionX]);
-			level[positionY][positionX] += 17;
+			gameBoard.updateField(positionY, positionX, level.get(positionY, positionX));
+			level.set(positionY, positionX, (char)(level.get(positionY, positionX) + 17));
 		}
 		
 		safeFields--;
@@ -240,7 +240,7 @@ public class Game {
 	private static void gameOver() {
 		gameRunning = false;
 		gameBoard.updateSmilie(3);
-		gameBoard.updateAllFields(level);
+		gameBoard.updateAllFields(level.getLevelData());
 		
 		JOptionPane.showMessageDialog(gameBoard, "Dude, you had ONE job...", "GAME OVER", JOptionPane.ERROR_MESSAGE);
 		
@@ -255,7 +255,7 @@ public class Game {
 		victory = true;
 		
 		gameBoard.updateSmilie(2);
-		gameBoard.updateAllFields(level);
+		gameBoard.updateAllFields(level.getLevelData());
 		
 		JOptionPane.showMessageDialog(gameBoard, "You have WON this level !!!", "VICTORY !!!",
 				JOptionPane.INFORMATION_MESSAGE);
@@ -272,7 +272,7 @@ public class Game {
 	 */
 	public static void saveToFile(Path path) {
 		try {
-			SaveGameUtility.saveToFile(path, level);
+			SaveGameUtility.saveToFile(path, level.getLevelData());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -292,7 +292,7 @@ public class Game {
 			System.out.println("Loading level from file: " + filePath);
 		
 		try {
-			level = SaveGameUtility.readFromFile(filePath);
+			level = Level.fromExistingData(SaveGameUtility.readFromFile(filePath));
 		} catch (IOException e) {
 			if (Game.DEBUG)
 				e.printStackTrace();
@@ -302,24 +302,28 @@ public class Game {
 				System.exit(1);
 		}
 		
-		sizeY = level.length;
-		sizeX = level[0].length;
+		sizeY = level.getSizeY();
+		sizeX = level.getSizeX();
 		
 		touchedFields = new LinkedHashMap<>();
 		
-		for (int i = 0; i < sizeY; i++) {
-			for (int j = 0; j < sizeX; j++) {
-				if (level[i][j] == BOMB)
+		// determine the state of the savegame.
+		// count bombs and safe fields, determine wich fields are
+		// allready 'touched'
+		for (int y = 0; y < sizeY; y++) {
+			for (int x = 0; x < sizeX; x++) {
+				if (level.get(y, x) == BOMB)
 					numBombs++;
-				else if (level[i][j] == FLAGGED_BOMB) {
-					touchedFields.put(i + "-" + j, level[i][j]);
+				else if (level.get(y, x) == FLAGGED_BOMB) {
+					touchedFields.put(y + "-" + x, level.get(y, x));
 					numBombs++;
 				}
-				else if (level[i][j] == FLAGGED) {
-					touchedFields.put(i + "-" + j, level[i][j]);
+				else if (level.get(y, x) == FLAGGED) {
+					touchedFields.put(y + "-" + x, level.get(y, x));
 				}
-				else if (level[i][j] >= 'A') {
-					touchedFields.put(i + "-" + j, (char)(level[i][j] - 17));
+				else if (level.get(y, x) >= 'A') {
+					touchedFields.put(y + "-" + x, (char)(level.get(y, x) - 17));
+					level.set(y, x, (char)(level.get(y, x) - 17));
 				}
 				else
 					safeFields++;
@@ -347,7 +351,7 @@ public class Game {
 		// determine the number of safe fields in the level
 		safeFields = (sizeY * sizeX) - numBombs;
 		
-		level = Level.newLevel(sizeY, sizeX, numBombs);
+		level = Level.generateNew(sizeY, sizeX, numBombs);
 		gameBoard = new GameBoard(sizeY, sizeX);
 	}
 	
@@ -356,7 +360,7 @@ public class Game {
 	 * only used when DEBUG=true.
 	 */
 	public static void printLevel() {
-		DebugView.printLevel(level);
+		DebugView.printLevel(level.getLevelData());
 	}
 	
 	/**
@@ -405,17 +409,18 @@ public class Game {
 		if (newGame)
 			threadPool.execute(() -> calculateFields());
 		
+		// - - - GAME START - - -
 		// wait here for the previous tasks to finish to make sure
 		// everything is nice and safe to proceed
 		barrier.await();
 		
 		if (!newGame)
-			gameBoard.updateTouchedFields(touchedFields);
+			threadPool.execute(() -> gameBoard.updateTouchedFields(touchedFields));
 		
 		if (Game.DEBUG) {
 			gameBoard.updateDebugLabel(
 					"Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
-			gameBoard.debugView(level);
+			gameBoard.debugView(level.getLevelData());
 		}
 	}
 }

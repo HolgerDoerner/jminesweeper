@@ -112,8 +112,8 @@ public class GameBoard extends JFrame implements Runnable {
 			this.positionY = y;
 			this.positionX = x;
 
-			this.setPreferredSize(new Dimension(40, 40));
-			this.setFont(new Font(null, Font.PLAIN, 30));
+			this.setPreferredSize(new Dimension(30, 30));
+			this.setFont(new Font(null, Font.PLAIN, 20));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
 
@@ -121,10 +121,13 @@ public class GameBoard extends JFrame implements Runnable {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseReleased(MouseEvent e) {
-					if (e.getButton() == MouseEvent.BUTTON1) // left mouse-button
+					if (e.getButton() == MouseEvent.BUTTON1 & _this_.active) { // left mouse-button
 						Game.revealField(_this_.positionY, _this_.positionX);
-					else if (e.getButton() == MouseEvent.BUTTON3) // right mouse-button
+						_this_.active = false;
+					} else if (e.getButton() == MouseEvent.BUTTON3  & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
+						_this_.active = false;
+					}
 
 					updateSmilie(1); // update smiley when mouse-button is pressed
 
@@ -151,7 +154,7 @@ public class GameBoard extends JFrame implements Runnable {
 			switch (fieldValue) {
 				case Game.FLAGGED:
 				case Game.FLAGGED_BOMB:
-					this.setText(Character.toString(0x2691));
+					this.setText("\u26F3");
 					if (!Game.gameRunning)
 						this.setBackground(Color.GREEN);
 					else
@@ -160,7 +163,7 @@ public class GameBoard extends JFrame implements Runnable {
 					break;
 
 				case Game.BOMB:
-					this.setText(Character.toString(0x1F571));
+					this.setText("\uD83D\uDD71");
 
 					if (Game.victory)
 						this.setBackground(Color.GREEN);
@@ -311,22 +314,22 @@ public class GameBoard extends JFrame implements Runnable {
 		switch (status) {
 			// mouse down
 			case 0:
-				this.lblSmiley.setText(Character.toString(0x1F632));
+				this.lblSmiley.setText("\uD83D\uDE2F");
 				break;
 
-			// mouse up
+			// mouse up / default
 			case 1:
-				this.lblSmiley.setText(Character.toString(0x1F60A));
+				this.lblSmiley.setText("\uD83D\uDE0A");
 				break;
 
 			// victory
 			case 2:
-				this.lblSmiley.setText(Character.toString(0x1F60D));
+				this.lblSmiley.setText("\uD83D\uDE0E");
 				break;
 
 			// defeat
 			case 3:
-				this.lblSmiley.setText(Character.toString(0x1F62D));
+				this.lblSmiley.setText("\uD83D\uDE2D");
 				break;
 		}
 	}
@@ -352,7 +355,7 @@ public class GameBoard extends JFrame implements Runnable {
 	}
 
 	/**
-	 * lets the gui run in its own thread.
+	 * let the gui run in its own thread.
 	 */
 	@Override
 	public void run() {
@@ -360,7 +363,7 @@ public class GameBoard extends JFrame implements Runnable {
 
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
 		this.lblSmiley.setAlignmentX(CENTER_ALIGNMENT);
-		this.lblSmiley.setText(Character.toString(0x1F60A));
+		this.lblSmiley.setText("\uD83D\uDE0A");
 
 		this.pnlMenu.setLayout(new BoxLayout(pnlMenu, BoxLayout.PAGE_AXIS));
 
@@ -398,6 +401,9 @@ public class GameBoard extends JFrame implements Runnable {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 
+//		this.setResizable(false);
+		this.setMaximumSize(new Dimension(500, 500));
+		
 		// at this point we make sure that everything is ready
 		// so we have to wait for the other tasks to finish their job
 		try {
@@ -407,8 +413,6 @@ public class GameBoard extends JFrame implements Runnable {
 				e.printStackTrace();
 		}
 
-		this.setResizable(false);
-		this.setMaximumSize(new Dimension(500, 500));
 		this.setVisible(true);
 	}
 }

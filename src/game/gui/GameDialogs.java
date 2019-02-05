@@ -19,9 +19,9 @@ public final class GameDialogs {
 		final JLabel lblSizeY = new JLabel("Size Y:");
 		final JLabel lblSizeX = new JLabel("Size X:");
 		final JLabel lblNumBombs = new JLabel("Number of Bombs:");
-		final JTextField txtSizeY = new JTextField("10");
-		final JTextField txtSizeX = new JTextField("10");
-		final JTextField txtNumBombs = new JTextField("15");
+		final JTextField txtSizeY = new JTextField("9");
+		final JTextField txtSizeX = new JTextField("9");
+		final JTextField txtNumBombs = new JTextField("10");
 		final JPanel panel = new JPanel();
 		
 		panel.setLayout(new GridLayout(3, 2));
