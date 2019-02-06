@@ -23,6 +23,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
+
 import game.Game;
 
 /**
@@ -109,10 +111,9 @@ public class GameWindow extends JFrame implements Runnable {
 			this.positionX = x;
 
 			this.setPreferredSize(new Dimension(30, 30));
-			this.setFont(new Font(null, Font.PLAIN, 20));
+			this.setFont(new Font(null, Font.TRUETYPE_FONT, 20));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
-			this.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 			// handler for mouse-clicks
 			this.addMouseListener(new MouseAdapter() {
@@ -161,20 +162,19 @@ public class GameWindow extends JFrame implements Runnable {
 			switch (fieldValue) {
 				case Game.FLAGGED:
 				case Game.FLAGGED_BOMB:
-					this.setText("\u26F3");
+					this.setText("\uD83C\uDFF4");
 					this.setForeground(Color.RED);
 					this.active = false;
 					break;
 
 				case Game.BOMB:
-					this.setText("\uD83D\uDD71");
+					this.setText("\uD83D\uDCA3");
 					this.active = false;
 					break;
 
 				// safe field. just give values >0 some color.
 				default:
 					this.setBackground(Color.GRAY);
-					this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 					if (fieldValue > Game.EMPTY) {
 						this.setText("" + fieldValue);
 						if (fieldValue == '1')
@@ -226,6 +226,7 @@ public class GameWindow extends JFrame implements Runnable {
 			newGameMenu.add(newEasyGame);
 			newGameMenu.add(newMediumGame);
 			newGameMenu.add(newHardGame);
+			newGameMenu.add(new JSeparator());
 			newGameMenu.add(newCustomGame);
 			
 			gameMenu.add(newGameMenu);

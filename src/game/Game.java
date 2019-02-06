@@ -18,7 +18,7 @@ import game.util.SaveGameUtility;
 /**
  * main class of the game
  * 
- * @author Holger Dörner
+ * @author Holger Dï¿½rner
  */
 public class Game {
 	// global game constants
@@ -43,6 +43,7 @@ public class Game {
 	private static int						sizeY;
 	private static int						sizeX;
 	private static int						numBombs;
+	private static int						numFlags;
 	private static int						safeFields;
 	private static GameWindow				gameWindow;
 	private static Map<String, Character>	touchedFields;
@@ -104,6 +105,9 @@ public class Game {
 	 * @param positionX the horizontal position
 	 */
 	public static synchronized void markField(final int positionY, final int positionX) {
+		if (numFlags == 0)
+			return;
+		
 		switch (level.get(positionY, positionX)) {
 			case FLAGGED:
 			case FLAGGED_BOMB:
@@ -121,7 +125,9 @@ public class Game {
 				break;
 		}
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		numFlags--;
+		
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -213,7 +219,7 @@ public class Game {
 		
 		safeFields--;
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -271,6 +277,7 @@ public class Game {
 		sizeY = 0;
 		sizeX = 0;
 		numBombs = 0;
+		numFlags = 10;
 		safeFields = 0;
 		
 		Path filePath = GameDialogs.showLoadGameDialog();
@@ -328,7 +335,7 @@ public class Game {
 			gameWindow.debugView(level.getLevelData());
 		
 		gameWindow.updateTouchedFields(touchedFields);
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
 	}
 	
 	/**
@@ -365,6 +372,7 @@ public class Game {
 		sizeY = y;
 		sizeX = x;
 		numBombs = b;
+		numFlags = 10;
 		
 		safeFields = (sizeY * sizeX) - numBombs;
 		
@@ -374,7 +382,7 @@ public class Game {
 		
 		gameWindow.newBoard(sizeY, sizeX);
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " (Safe : " + safeFields + " Bombs: " + numBombs + ")");
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
 		
 		if (DEBUG)
 			gameWindow.debugView(level.getLevelData());
