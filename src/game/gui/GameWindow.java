@@ -15,7 +15,6 @@ import java.util.concurrent.BrokenBarrierException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,7 +22,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-
+import javax.swing.border.BevelBorder;
 import game.Game;
 
 /**
@@ -32,16 +31,13 @@ import game.Game;
  * @author Holger Dörner
  * 
  */
-public class GameBoard extends JFrame implements Runnable {
+public class GameWindow extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private final JPanel	pnlMain		= new JPanel();
+	private JPanel	pnlMain		= new JPanel();
 	private final JPanel	pnlMenu		= new JPanel();
 	private final JLabel	lblSmiley	= new JLabel();
-	private final JLabel	lblDebug	= new JLabel();
-
-	private final int			sizeY;
-	private final int			sizeX;
+	private final JLabel	lblStatus	= new JLabel(" ");
 	private Map<String, Field>	gameFields;
 
 	/**
@@ -116,6 +112,7 @@ public class GameBoard extends JFrame implements Runnable {
 			this.setFont(new Font(null, Font.PLAIN, 20));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
+			this.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 			// handler for mouse-clicks
 			this.addMouseListener(new MouseAdapter() {
@@ -128,18 +125,28 @@ public class GameBoard extends JFrame implements Runnable {
 						Game.markField(_this_.positionY, _this_.positionX);
 						_this_.active = false;
 					}
-
-					updateSmilie(1); // update smiley when mouse-button is pressed
+					
+					if (Game.gameRunning)
+						updateSmilie(1); // reset smiley when mouse-button is released
 
 					if (Game.DEBUG)
 						System.out.println("Clicked Field: " + _this_.getPositionY() + "x" + _this_.getPositionX()
 								+ "\tMouse-Button: " + e.getButton());
 				}
 
-				// reset smiley when mouse-button is released
 				@Override
 				public void mousePressed(MouseEvent e) {
-					updateSmilie(0);
+					// update smiley when mouse-button is pressed
+					if (Game.gameRunning)
+						updateSmilie(0);
+				}
+				
+				@Override
+				public void mouseEntered(MouseEvent e) {
+				}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {
 				}
 			});
 		}
@@ -155,33 +162,25 @@ public class GameBoard extends JFrame implements Runnable {
 				case Game.FLAGGED:
 				case Game.FLAGGED_BOMB:
 					this.setText("\u26F3");
-					if (!Game.gameRunning)
-						this.setBackground(Color.GREEN);
-					else
-						this.setBackground(Color.YELLOW);
+					this.setForeground(Color.RED);
 					this.active = false;
 					break;
 
 				case Game.BOMB:
 					this.setText("\uD83D\uDD71");
-
-					if (Game.victory)
-						this.setBackground(Color.GREEN);
-					else
-						this.setBackground(Color.RED);
-
 					this.active = false;
 					break;
 
 				// safe field. just give values >0 some color.
 				default:
 					this.setBackground(Color.GRAY);
+					this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 					if (fieldValue > Game.EMPTY) {
 						this.setText("" + fieldValue);
 						if (fieldValue == '1')
-							this.setForeground(Color.GREEN);
+							this.setForeground(Color.BLUE);
 						else if (fieldValue == '2')
-							this.setForeground(Color.YELLOW);
+							this.setForeground(Color.GREEN);
 						else if (fieldValue >= '3')
 							this.setForeground(Color.RED);
 					}
@@ -200,44 +199,45 @@ public class GameBoard extends JFrame implements Runnable {
 	private class MainMenu extends JMenuBar {
 		private static final long serialVersionUID = 1L;
 
-		private final JMenu			fileMenu		= new JMenu("File");
+		private final JMenu			gameMenu		= new JMenu("Game");
+		private final JMenu			newGameMenu		= new JMenu("New");
 		private final JMenu			debugMenu		= new JMenu("Debug");
-		private final JSeparator	menuSeparator	= new JSeparator();
+		private final JMenuItem		newEasyGame		= new JMenuItem("Easy");
+		private final JMenuItem		newMediumGame		= new JMenuItem("Medium");
+		private final JMenuItem		newHardGame		= new JMenuItem("Hard");
+		private final JMenuItem		newCustomGame		= new JMenuItem("Custom");
+		private final JMenuItem		loadMenuItem	= new JMenuItem("Load");
 		private final JMenuItem		saveMenuItem	= new JMenuItem("Save");
 		private final JMenuItem		exitMenuItem	= new JMenuItem("Exit");
 		private final JMenuItem		dbgPrintMenuItem = new JMenuItem("Print level to console");
 
-		/**
-		 * lets the player save the current level to a file. some kind of savegame.
-		 */
-		private void save() {
-			JFileChooser fileChooser = new JFileChooser();
-			int userChoice = fileChooser.showSaveDialog(this);
-
-			switch (userChoice) {
-				case JFileChooser.APPROVE_OPTION:
-					Game.saveToFile(fileChooser.getSelectedFile().toPath());
-					break;
-
-				case JFileChooser.CANCEL_OPTION:
-				case JFileChooser.ERROR_OPTION:
-					break;
-			}
-		}
-
 		private MainMenu() {
-			saveMenuItem.addActionListener(e -> save());
-			exitMenuItem.addActionListener(e -> System.exit(0));
+			newEasyGame.addActionListener(e -> Game.newGame(8, 8, 10));
+			newMediumGame.addActionListener(e -> Game.newGame(16, 16, 40));
+			newHardGame.addActionListener(e -> Game.newGame(16, 30, 99));
+			newCustomGame.addActionListener(e -> Game.newGame());
+			loadMenuItem.addActionListener(e -> Game.loadFromFile());
+			saveMenuItem.addActionListener(e -> Game.saveToFile());
+			exitMenuItem.addActionListener(e -> Game.exitGame());
 			
+			// only in DEBUG-mode
 			dbgPrintMenuItem.addActionListener(e -> Game.printLevel());
-
-			fileMenu.add(saveMenuItem);
-			fileMenu.add(menuSeparator);
-			fileMenu.add(exitMenuItem);
+			
+			newGameMenu.add(newEasyGame);
+			newGameMenu.add(newMediumGame);
+			newGameMenu.add(newHardGame);
+			newGameMenu.add(newCustomGame);
+			
+			gameMenu.add(newGameMenu);
+			gameMenu.add(new JSeparator());
+			gameMenu.add(loadMenuItem);
+			gameMenu.add(saveMenuItem);
+			gameMenu.add(new JSeparator());
+			gameMenu.add(exitMenuItem);
 			
 			debugMenu.add(dbgPrintMenuItem);
 
-			this.add(fileMenu);
+			this.add(gameMenu);
 			
 			if (Game.DEBUG)
 				this.add(debugMenu);
@@ -245,15 +245,9 @@ public class GameBoard extends JFrame implements Runnable {
 	}
 
 	/**
-	 * constructor for the gameboard
-	 * 
-	 * @param sizeY the vertical size of the board
-	 * @param sizeX the horizontal size of the board
+	 * default no-args constructor for the gui
 	 */
-	public GameBoard(int sizeY, int sizeX) {
-		this.sizeY = sizeY;
-		this.sizeX = sizeX;
-	}
+	public GameWindow() {}
 
 	/**
 	 * 
@@ -346,12 +340,43 @@ public class GameBoard extends JFrame implements Runnable {
 	}
 
 	/**
-	 * updates the label beneath the gamefield. only used in debug-mode
+	 * updates the status-label beneath the gamefield.
 	 * 
-	 * @param debugText a java.lang.String containing the text to display
+	 * @param statusText a java.lang.String containing the text to display
 	 */
-	public void updateDebugLabel(String debugText) {
-		this.lblDebug.setText(debugText);
+	public void updateStatusLabel(String statusText) {
+		this.lblStatus.setText(statusText);
+	}
+	
+	/**
+	 * generates a new board inside of the main-window.
+	 * should a board already exist, it gets deleted.
+	 * 
+	 * @param sizeY the vertical size
+	 * @param sizeX the horizontal size
+	 */
+	public void newBoard(final int sizeY, final int sizeX) {
+		this.remove(pnlMain);
+		this.pnlMain = new JPanel();
+		this.pnlMain.setLayout(new GridLayout(sizeY, sizeX));
+		
+		this.gameFields = new LinkedHashMap<>();
+
+		for (int i = 0; i < sizeY; i++) {
+			for (int j = 0; j < sizeX; j++) {
+				Field f = new Field(i, j);
+				this.gameFields.put(i + "-" + j, f);
+				this.pnlMain.add(f);
+
+				if (Game.DEBUG)
+					System.out.println("Generated Field: y" + i + " x" + j);
+			}
+		}
+		
+		this.add(pnlMain, BorderLayout.CENTER);
+		this.pack();
+		
+		updateSmilie(1);
 	}
 
 	/**
@@ -371,38 +396,17 @@ public class GameBoard extends JFrame implements Runnable {
 		this.pnlMenu.add(lblSmiley);
 		this.pnlMenu.add(Box.createVerticalGlue());
 
-		this.pnlMain.setLayout(new GridLayout(sizeY, sizeX));
-
-		this.gameFields = new LinkedHashMap<>();
-
-		for (int i = 0; i < sizeY; i++) {
-			for (int j = 0; j < sizeX; j++) {
-				Field f = new Field(i, j);
-				this.gameFields.put(i + "-" + j, f);
-				this.pnlMain.add(f);
-
-				if (Game.DEBUG)
-					System.out.println("Generated Field: y" + f.getPositionY() + " x" + f.getPositionX());
-			}
-		}
-
 		this.setLayout(new BorderLayout());
 
 		this.setJMenuBar(new MainMenu());
 
 		this.add(pnlMenu, BorderLayout.NORTH);
-		this.add(pnlMain, BorderLayout.CENTER);
-
-		if (Game.DEBUG)
-			this.add(lblDebug, BorderLayout.SOUTH);
+		this.add(lblStatus, BorderLayout.SOUTH);
 
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
-
-//		this.setResizable(false);
-		this.setMaximumSize(new Dimension(500, 500));
 		
 		// at this point we make sure that everything is ready
 		// so we have to wait for the other tasks to finish their job

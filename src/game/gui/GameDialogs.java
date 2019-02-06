@@ -67,4 +67,14 @@ public final class GameDialogs {
 		}
 	}
 	
+	public static Path showSaveGameDialog() {
+		JFileChooser fileChooser = new JFileChooser();
+		int userChoice = fileChooser.showSaveDialog(null);
+		
+		if (userChoice == JFileChooser.APPROVE_OPTION)
+			return fileChooser.getSelectedFile().toPath();
+		else
+			return null;
+	}
+	
 }
