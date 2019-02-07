@@ -235,7 +235,7 @@ public class Game {
 		gameWindow.updateAllFields(level.getLevelData());
 		gameWindow.updateSmilie(3);
 		
-//		JOptionPane.showMessageDialog(gameWindow, "Dude, you had ONE job...", "GAME OVER", JOptionPane.ERROR_MESSAGE);
+		Game.threadPool.execute(() -> GameDialogs.showDefeatDialog(gameWindow));
 	}
 	
 	/**
@@ -248,8 +248,7 @@ public class Game {
 		gameWindow.updateAllFields(level.getLevelData());
 		gameWindow.updateSmilie(2);
 		
-//		JOptionPane.showMessageDialog(gameWindow, "You have WON this level !!!", "VICTORY !!!",
-//				JOptionPane.INFORMATION_MESSAGE);
+		Game.threadPool.execute(() -> GameDialogs.showVictoryDialog(gameWindow));		
 	}
 	
 	/**
@@ -260,7 +259,7 @@ public class Game {
 	 * @param path a path to a file on disc
 	 */
 	public static void saveToFile() {
-		Path path = GameDialogs.showSaveGameDialog();
+		Path path = GameDialogs.showSaveGameDialog(gameWindow);
 		
 		try {
 			SaveGameUtility.saveToFile(path, level.getLevelData());
@@ -280,7 +279,7 @@ public class Game {
 		numFlags = 10;
 		safeFields = 0;
 		
-		Path filePath = GameDialogs.showLoadGameDialog();
+		Path filePath = GameDialogs.showLoadGameDialog(gameWindow);
 		
 		if (filePath == null)
 			System.exit(0);
@@ -351,7 +350,7 @@ public class Game {
 	 * @see game.Game.newGame(int,int,int)
 	 */
 	public static void newGame() {
-		int[] newSettings = GameDialogs.showNewGameDialog();
+		int[] newSettings = GameDialogs.showNewGameDialog(gameWindow);
 		
 		if (newSettings == null)
 			return;

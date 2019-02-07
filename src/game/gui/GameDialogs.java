@@ -1,5 +1,6 @@
 package game.gui;
 
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.nio.file.Path;
 
@@ -15,7 +16,7 @@ public final class GameDialogs {
 	private GameDialogs() {
 	}
 	
-	public static int[] showNewGameDialog() {
+	public static int[] showNewGameDialog(Component parent) {
 		final JLabel lblSizeY = new JLabel("Size Y:");
 		final JLabel lblSizeX = new JLabel("Size X:");
 		final JLabel lblNumBombs = new JLabel("Number of Bombs:");
@@ -33,7 +34,7 @@ public final class GameDialogs {
 		panel.add(lblNumBombs);
 		panel.add(txtNumBombs);
 		
-		int userChoice = JOptionPane.showConfirmDialog(null, panel, "jMinesweeper - New Game", JOptionPane.OK_OPTION);
+		int userChoice = JOptionPane.showConfirmDialog(parent, panel, "jMinesweeper - New Game", JOptionPane.OK_OPTION);
 		
 		switch (userChoice) {
 			case JOptionPane.OK_OPTION:
@@ -56,9 +57,9 @@ public final class GameDialogs {
 		}		
 	}
 	
-	public static Path showLoadGameDialog() {
+	public static Path showLoadGameDialog(Component parent) {
 		JFileChooser fileChooser = new JFileChooser();
-		int choice = fileChooser.showOpenDialog(null);
+		int choice = fileChooser.showOpenDialog(parent);
 		
 		if (choice == 0) {
 			return fileChooser.getSelectedFile().toPath();
@@ -67,9 +68,9 @@ public final class GameDialogs {
 		}
 	}
 	
-	public static Path showSaveGameDialog() {
+	public static Path showSaveGameDialog(Component parent) {
 		JFileChooser fileChooser = new JFileChooser();
-		int userChoice = fileChooser.showSaveDialog(null);
+		int userChoice = fileChooser.showSaveDialog(parent);
 		
 		if (userChoice == JFileChooser.APPROVE_OPTION)
 			return fileChooser.getSelectedFile().toPath();
@@ -77,4 +78,13 @@ public final class GameDialogs {
 			return null;
 	}
 	
+	
+	public static void showDefeatDialog(Component parent) {
+		JOptionPane.showMessageDialog(parent, "Dude, you had ONE job...", "GAME OVER", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public static void showVictoryDialog(Component parent) {
+		JOptionPane.showMessageDialog(parent, "You have WON this level !!!", "VICTORY !!!",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
 }

@@ -23,7 +23,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
 
 import game.Game;
 
@@ -114,6 +113,7 @@ public class GameWindow extends JFrame implements Runnable {
 			this.setFont(new Font(null, Font.TRUETYPE_FONT, 20));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
+			this.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 			// handler for mouse-clicks
 			this.addMouseListener(new MouseAdapter() {
@@ -175,6 +175,7 @@ public class GameWindow extends JFrame implements Runnable {
 				// safe field. just give values >0 some color.
 				default:
 					this.setBackground(Color.GRAY);
+					this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 					if (fieldValue > Game.EMPTY) {
 						this.setText("" + fieldValue);
 						if (fieldValue == '1')
@@ -280,6 +281,7 @@ public class GameWindow extends JFrame implements Runnable {
 				field.updateField(data[field.getPositionY()][field.getPositionX()]);
 			});
 		});
+		
 	}
 
 	/**
