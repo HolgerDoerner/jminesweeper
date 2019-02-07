@@ -8,10 +8,11 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import game.data.Level;
-import game.gui.GameWindow;
 import game.gui.GameDialogs;
+import game.gui.GameWindow;
 import game.util.DebugView;
 import game.util.SaveGameUtility;
 
@@ -23,7 +24,7 @@ import game.util.SaveGameUtility;
 public class Game {
 	// global game constants
 	////////////////////////
-	public static final boolean	DEBUG			= false; 
+	public static final boolean	DEBUG			= false;
 	public static final char	BOMB			= '@';
 	public static final char	EMPTY			= '0';
 	public static final char	UNTOUCHED		= 'O';
@@ -32,8 +33,8 @@ public class Game {
 	
 	// public static fields
 	///////////////////////
-	public static boolean			gameRunning	= true;
-	public static boolean			victory		= false;
+	public static volatile boolean	gameRunning	= true;
+	public static volatile boolean	victory		= false;
 	public static CyclicBarrier		barrier;
 	public static ExecutorService	threadPool;
 	
@@ -47,6 +48,7 @@ public class Game {
 	private static int						safeFields;
 	private static GameWindow				gameWindow;
 	private static Map<String, Character>	touchedFields;
+	private static AtomicInteger			time	= new AtomicInteger(0);
 	
 	/**
 	 * calculates the fields of an level and updates the array before the game
@@ -127,7 +129,8 @@ public class Game {
 		
 		numFlags--;
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
+		gameWindow.updateFlagCounter("" + numFlags);
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -144,12 +147,13 @@ public class Game {
 	public static synchronized void revealField(final int positionY, final int positionX) {
 		Thread.currentThread().setName("Revealing-Field-" + positionY + "x" + positionX);
 		
-		if (level.get(positionY, positionX) >= 'A') return;
+		if (level.get(positionY, positionX) >= 'A')
+			return;
 		else if (level.get(positionY, positionX) == BOMB) {
 			gameOver();
 			return;
-		}
-		else if (level.get(positionY, positionX) == FLAGGED_BOMB);
+		} else if (level.get(positionY, positionX) == FLAGGED_BOMB)
+			;
 		else if (level.get(positionY, positionX) == EMPTY) {
 			for (int i = -1, j = 1; i <= 1; i++, j--) {
 				if (i == 0)
@@ -157,10 +161,14 @@ public class Game {
 				
 				// check left <-> right
 				try {
-					if (level.get(positionY, positionX + i) == BOMB);
-					else if (level.get(positionY, positionX + i) == FLAGGED_BOMB);
-					else if (level.get(positionY, positionX + i) == FLAGGED);
-					else if (level.get(positionY, positionX + i) >= 'A');
+					if (level.get(positionY, positionX + i) == BOMB)
+						;
+					else if (level.get(positionY, positionX + i) == FLAGGED_BOMB)
+						;
+					else if (level.get(positionY, positionX + i) == FLAGGED)
+						;
+					else if (level.get(positionY, positionX + i) >= 'A')
+						;
 					else {
 						final int nextX = positionX + i;
 						threadPool.execute(() -> revealField(positionY, nextX));
@@ -170,10 +178,14 @@ public class Game {
 				
 				// check above <-> beneath
 				try {
-					if (level.get(positionY + i, positionX) == BOMB);
-					else if (level.get(positionY + i, positionX) == FLAGGED_BOMB);
-					else if (level.get(positionY + i, positionX) == FLAGGED);
-					else if (level.get(positionY + i, positionX) >= 'A');
+					if (level.get(positionY + i, positionX) == BOMB)
+						;
+					else if (level.get(positionY + i, positionX) == FLAGGED_BOMB)
+						;
+					else if (level.get(positionY + i, positionX) == FLAGGED)
+						;
+					else if (level.get(positionY + i, positionX) >= 'A')
+						;
 					else {
 						final int nextY = positionY + i;
 						threadPool.execute(() -> revealField(nextY, positionX));
@@ -183,10 +195,14 @@ public class Game {
 				
 				// check above-left <-> beneath-right
 				try {
-					if (level.get(positionY + i, positionX + i) == BOMB);
-					else if (level.get(positionY + i, positionX + i) == FLAGGED_BOMB);
-					else if (level.get(positionY + i, positionX + i) == FLAGGED);
-					else if (level.get(positionY + i, positionX + i) >= 'A');
+					if (level.get(positionY + i, positionX + i) == BOMB)
+						;
+					else if (level.get(positionY + i, positionX + i) == FLAGGED_BOMB)
+						;
+					else if (level.get(positionY + i, positionX + i) == FLAGGED)
+						;
+					else if (level.get(positionY + i, positionX + i) >= 'A')
+						;
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + i;
@@ -197,10 +213,14 @@ public class Game {
 				
 				// check above-right <-> beneath-left
 				try {
-					if (level.get(positionY + i, positionX + j) == BOMB);
-					else if (level.get(positionY + i, positionX + j) == FLAGGED_BOMB);
-					else if (level.get(positionY + i, positionX + j) == FLAGGED);
-					else if (level.get(positionY + i, positionX + j) >= 'A');
+					if (level.get(positionY + i, positionX + j) == BOMB)
+						;
+					else if (level.get(positionY + i, positionX + j) == FLAGGED_BOMB)
+						;
+					else if (level.get(positionY + i, positionX + j) == FLAGGED)
+						;
+					else if (level.get(positionY + i, positionX + j) >= 'A')
+						;
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + j;
@@ -211,15 +231,16 @@ public class Game {
 			}
 			
 			gameWindow.updateField(positionY, positionX, level.get(positionY, positionX));
-			level.set(positionY, positionX, (char)(level.get(positionY, positionX) + 17));
+			level.set(positionY, positionX, (char) (level.get(positionY, positionX) + 17));
 		} else {
 			gameWindow.updateField(positionY, positionX, level.get(positionY, positionX));
-			level.set(positionY, positionX, (char)(level.get(positionY, positionX) + 17));
+			level.set(positionY, positionX, (char) (level.get(positionY, positionX) + 17));
 		}
 		
 		safeFields--;
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
+		gameWindow.updateFlagCounter("" + numFlags);
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 		
 		if (safeFields == 0)
 			gameVictory();
@@ -248,7 +269,7 @@ public class Game {
 		gameWindow.updateAllFields(level.getLevelData());
 		gameWindow.updateSmilie(2);
 		
-		Game.threadPool.execute(() -> GameDialogs.showVictoryDialog(gameWindow));		
+		Game.threadPool.execute(() -> GameDialogs.showVictoryDialog(gameWindow));
 	}
 	
 	/**
@@ -272,11 +293,13 @@ public class Game {
 	/**
 	 * loads a level from a file
 	 */
-	public static void loadFromFile() {	
+	public static void loadFromFile() {
+		gameRunning = false;
+		
 		sizeY = 0;
 		sizeX = 0;
 		numBombs = 0;
-		numFlags = 10;
+		numFlags = 0;
 		safeFields = 0;
 		
 		Path filePath = GameDialogs.showLoadGameDialog(gameWindow);
@@ -301,6 +324,8 @@ public class Game {
 		sizeY = level.getSizeY();
 		sizeX = level.getSizeX();
 		
+		numFlags = (sizeY * sizeX) / 2;
+		
 		touchedFields = new LinkedHashMap<>();
 		
 		// determine the state of the savegame.
@@ -313,20 +338,15 @@ public class Game {
 				else if (level.get(y, x) == FLAGGED_BOMB) {
 					touchedFields.put(y + "-" + x, level.get(y, x));
 					numBombs++;
-				}
-				else if (level.get(y, x) == FLAGGED) {
+				} else if (level.get(y, x) == FLAGGED) {
 					touchedFields.put(y + "-" + x, level.get(y, x));
-				}
-				else if (level.get(y, x) >= 'A') {
-					touchedFields.put(y + "-" + x, (char)(level.get(y, x) - 17));
-					level.set(y, x, (char)(level.get(y, x) - 17));
-				}
-				else
+				} else if (level.get(y, x) >= 'A') {
+					touchedFields.put(y + "-" + x, (char) (level.get(y, x) - 17));
+					level.set(y, x, (char) (level.get(y, x) - 17));
+				} else
 					safeFields++;
 			}
 		}
-		
-		gameRunning = true;
 		
 		gameWindow.newBoard(sizeY, sizeX);
 		
@@ -334,7 +354,13 @@ public class Game {
 			gameWindow.debugView(level.getLevelData());
 		
 		gameWindow.updateTouchedFields(touchedFields);
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
+		gameWindow.updateTimer("000");
+		gameWindow.updateFlagCounter("" + numFlags);
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
+		
+		gameRunning = true;
+		
+		resetTimer();
 	}
 	
 	/**
@@ -366,30 +392,35 @@ public class Game {
 	 * @param b the number of bombs
 	 */
 	public static void newGame(final int y, final int x, final int b) {
-		gameRunning = true;
+		gameRunning = false;
 		
 		sizeY = y;
 		sizeX = x;
 		numBombs = b;
-		numFlags = 10;
+		numFlags = (y * x) / 2;
 		
 		safeFields = (sizeY * sizeX) - numBombs;
 		
 		level = Level.generateNew(sizeY, sizeX, numBombs);
 		
-		calculateFields();
+		threadPool.execute(() -> calculateFields());
 		
 		gameWindow.newBoard(sizeY, sizeX);
 		
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs + " Flags: " + numFlags);
+		gameWindow.updateTimer("000");
+		gameWindow.updateFlagCounter("" + numFlags);
+		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
+		
+		gameRunning = true;
+		
+		resetTimer();
 		
 		if (DEBUG)
 			gameWindow.debugView(level.getLevelData());
 	}
 	
 	/**
-	 * prints the current level-layout to console.
-	 * only used when DEBUG=true.
+	 * prints the current level-layout to console. only used when DEBUG=true.
 	 */
 	public static void printLevel() {
 		DebugView.printLevel(level.getLevelData());
@@ -405,6 +436,35 @@ public class Game {
 	}
 	
 	/**
+	 * measures the elapsed time for the current level in seconds.
+	 */
+	private static void startTimer() {
+		threadPool.execute(() -> {
+			Thread.currentThread().setName("Time-Counter");
+			
+			while (true) {
+				if (!gameRunning)
+					continue;
+				
+				try {
+					Thread.sleep(1000);
+					gameWindow.updateTimer("" + time.incrementAndGet());
+				} catch (InterruptedException e) {
+					if (DEBUG)
+						e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * resets the timer by setting time to 0 (zero)
+	 */
+	private static void resetTimer() {
+		time.set(0);
+	}
+	
+	/**
 	 * entry point of the game
 	 * 
 	 * @param args
@@ -412,7 +472,7 @@ public class Game {
 	 * @throws BrokenBarrierException
 	 */
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
-		barrier = new CyclicBarrier(2, () ->  {
+		barrier = new CyclicBarrier(2, () -> {
 			if (DEBUG)
 				System.out.println("Barrier - - - GAME START - - - breached");
 		});
@@ -427,5 +487,7 @@ public class Game {
 		newGame(8, 8, 10);
 		
 		barrier.await();
+		
+		startTimer();
 	}
 }
