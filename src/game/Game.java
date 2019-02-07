@@ -18,12 +18,12 @@ import game.util.SaveGameUtility;
 /**
  * main class of the game
  * 
- * @author Holger Dï¿½rner
+ * @author Holger Dörner
  */
 public class Game {
 	// global game constants
 	////////////////////////
-	public static final boolean	DEBUG			= false;
+	public static final boolean	DEBUG			= false; 
 	public static final char	BOMB			= '@';
 	public static final char	EMPTY			= '0';
 	public static final char	UNTOUCHED		= 'O';
