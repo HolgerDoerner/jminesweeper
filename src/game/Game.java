@@ -8,7 +8,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Future;
 
 import game.data.Level;
 import game.gui.GameDialogs;
@@ -19,12 +19,12 @@ import game.util.SaveGameUtility;
 /**
  * main class of the game
  * 
- * @author Holger Dörner
+ * @author Holger DÃ¶rner
  */
 public class Game {
 	// global game constants
 	////////////////////////
-	public static final boolean	DEBUG			= false;
+	public static final boolean	DEBUG			= true;
 	public static final char	BOMB			= '@';
 	public static final char	EMPTY			= '0';
 	public static final char	UNTOUCHED		= 'O';
@@ -48,7 +48,7 @@ public class Game {
 	private static int						safeFields;
 	private static GameWindow				gameWindow;
 	private static Map<String, Character>	touchedFields;
-	private static AtomicInteger			time	= new AtomicInteger(0);
+	private static Future<?> 				timer;
 	
 	/**
 	 * calculates the fields of an level and updates the array before the game
@@ -250,6 +250,8 @@ public class Game {
 	 * player clicked on a bomb-field, too bad...
 	 */
 	private static void gameOver() {
+		stopTimer();
+		
 		gameRunning = false;
 		victory = false;
 		
@@ -263,6 +265,8 @@ public class Game {
 	 * player has revealed all save fields in the level.
 	 */
 	private static void gameVictory() {
+		stopTimer();
+		
 		gameRunning = false;
 		victory = true;
 		
@@ -294,6 +298,8 @@ public class Game {
 	 * loads a level from a file
 	 */
 	public static void loadFromFile() {
+		stopTimer();
+		
 		gameRunning = false;
 		
 		sizeY = 0;
@@ -360,7 +366,7 @@ public class Game {
 		
 		gameRunning = true;
 		
-		resetTimer();
+		startTimer();
 	}
 	
 	/**
@@ -392,6 +398,8 @@ public class Game {
 	 * @param b the number of bombs
 	 */
 	public static void newGame(final int y, final int x, final int b) {
+		stopTimer();
+		
 		gameRunning = false;
 		
 		sizeY = y;
@@ -413,7 +421,7 @@ public class Game {
 		
 		gameRunning = true;
 		
-		resetTimer();
+		startTimer();
 		
 		if (DEBUG)
 			gameWindow.debugView(level.getLevelData());
@@ -439,29 +447,36 @@ public class Game {
 	 * measures the elapsed time for the current level in seconds.
 	 */
 	private static void startTimer() {
-		threadPool.execute(() -> {
+		timer = threadPool.submit(() -> {
 			Thread.currentThread().setName("Time-Counter");
 			
-			while (true) {
-				if (!gameRunning)
-					continue;
-				
+			if (DEBUG)
+				System.out.println(Thread.currentThread().getName() + " started!");
+			
+			int time = 0;
+			
+			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					Thread.sleep(1000);
-					gameWindow.updateTimer("" + time.incrementAndGet());
+					gameWindow.updateTimer("" + time++);
 				} catch (InterruptedException e) {
-					if (DEBUG)
-						e.printStackTrace();
+					break;
 				}
 			}
+			
+			if (DEBUG)
+				System.out.println(Thread.currentThread().getName() + " stopped!");
+			
+			return;
 		});
 	}
 	
 	/**
 	 * resets the timer by setting time to 0 (zero)
 	 */
-	private static void resetTimer() {
-		time.set(0);
+	private static void stopTimer() {
+		if (timer != null)
+			timer.cancel(true);
 	}
 	
 	/**
@@ -487,7 +502,5 @@ public class Game {
 		newGame(8, 8, 10);
 		
 		barrier.await();
-		
-		startTimer();
 	}
 }
