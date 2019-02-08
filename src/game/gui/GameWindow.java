@@ -38,7 +38,7 @@ public class GameWindow extends JFrame implements Runnable {
 	private final JPanel		pnlMenu		= new JPanel();
 	private final JLabel		lblSmiley	= new JLabel();
 	private final JLabel		lblTime		= new JLabel("000");
-	private final JLabel		lblFlags	= new JLabel("000");
+	private final JLabel		lblBombs	= new JLabel("000");
 	private final JLabel		lblStatus	= new JLabel(" ");
 	private Map<String, Field>	gameFields;
 	
@@ -127,7 +127,6 @@ public class GameWindow extends JFrame implements Runnable {
 						_this_.clicked = true;
 					} else if (e.getButton() == MouseEvent.BUTTON3 & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
-						_this_.active = false;
 					}
 					
 					if (Game.gameRunning)
@@ -162,36 +161,42 @@ public class GameWindow extends JFrame implements Runnable {
 		 * 
 		 */
 		void updateField(final char fieldValue) {
-			switch (fieldValue) {
-				case Game.FLAGGED:
-				case Game.FLAGGED_BOMB:
-					this.setText("\uD83C\uDFF4");
-					this.setForeground(Color.RED);
-					this.active = false;
-					break;
-				
-				case Game.BOMB:
-					this.setText("\uD83D\uDCA3");
-					if (this.clicked)
-						this.setBackground(Color.RED);
-					this.active = false;
-					break;
-				
-				// safe field. just give values >0 some color.
-				default:
-					this.setBackground(Color.GRAY);
-					this.setBorder(new BevelBorder(BevelBorder.LOWERED));
-					if (fieldValue > Game.EMPTY) {
-						this.setText("" + fieldValue);
-						if (fieldValue == '1')
-							this.setForeground(Color.BLUE);
-						else if (fieldValue == '2')
-							this.setForeground(Color.GREEN);
-						else if (fieldValue >= '3')
-							this.setForeground(Color.RED);
-					}
-					this.active = false;
-					break;
+			if (fieldValue == Game.BOMB) {
+				this.setText("\uD83D\uDCA3");
+				if (this.clicked)
+					this.setBackground(Color.RED);
+			}
+			else if (fieldValue == Game.FLAGGED_BOMB) {
+				this.setText("\uD83C\uDFF4");
+				this.setForeground(Color.RED);
+			}
+			else if (fieldValue >= 'a' & fieldValue <= 'i') {
+				this.setText("\uD83C\uDFF4");
+				this.setForeground(Color.RED);
+			}
+			else if (fieldValue == Game.UNTOUCHED) {
+				this.setText("");
+				this.setForeground(Color.BLACK);
+			}
+			else if (fieldValue == Game.EMPTY) {
+				this.setBackground(Color.GRAY);
+				this.setBorder(new BevelBorder(BevelBorder.LOWERED));
+				this.setText("");
+				this.active = false;
+			}
+			else {
+				this.setBackground(Color.GRAY);
+				this.setBorder(new BevelBorder(BevelBorder.LOWERED));
+				if (fieldValue > Game.EMPTY & fieldValue < '9') {
+					this.setText("" + fieldValue);
+					if (fieldValue == '1')
+						this.setForeground(Color.BLUE);
+					else if (fieldValue == '2')
+						this.setForeground(Color.GREEN);
+					else if (fieldValue >= '3')
+						this.setForeground(Color.RED);
+				}
+				this.active = false;
 			}
 		}
 	}
@@ -367,13 +372,13 @@ public class GameWindow extends JFrame implements Runnable {
 		this.lblTime.setText(time);
 	}
 	
-	public void updateFlagCounter(String flags) {
-		if (flags.length() == 1)
-			flags = "00" + flags;
-		if (flags.length() == 2)
-			flags = "0" + flags;
+	public void updateBombCounter(String numBombs) {
+		if (numBombs.length() == 1)
+			numBombs = "00" + numBombs;
+		if (numBombs.length() == 2)
+			numBombs = "0" + numBombs;
 		
-		this.lblFlags.setText(flags);
+		this.lblBombs.setText(numBombs);
 	}
 	
 	/**
@@ -420,13 +425,13 @@ public class GameWindow extends JFrame implements Runnable {
 		
 		this.lblTime.setFont(new Font(null, Font.BOLD, 30));
 		
-		this.lblFlags.setFont(new Font(null, Font.BOLD, 30));
+		this.lblBombs.setFont(new Font(null, Font.BOLD, 30));
 		
-		this.pnlMenu.add(lblTime);
+		this.pnlMenu.add(lblBombs);
 		this.pnlMenu.add(Box.createHorizontalStrut(20));
 		this.pnlMenu.add(lblSmiley);
 		this.pnlMenu.add(Box.createHorizontalStrut(20));
-		this.pnlMenu.add(lblFlags);
+		this.pnlMenu.add(lblTime);
 		
 		this.setLayout(new BorderLayout());
 		
