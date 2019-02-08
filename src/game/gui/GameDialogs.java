@@ -20,8 +20,8 @@ public final class GameDialogs {
 		final JLabel lblSizeY = new JLabel("Size Y:");
 		final JLabel lblSizeX = new JLabel("Size X:");
 		final JLabel lblNumBombs = new JLabel("Number of Bombs:");
-		final JTextField txtSizeY = new JTextField("9");
-		final JTextField txtSizeX = new JTextField("9");
+		final JTextField txtSizeY = new JTextField("8");
+		final JTextField txtSizeX = new JTextField("8");
 		final JTextField txtNumBombs = new JTextField("10");
 		final JPanel panel = new JPanel();
 		

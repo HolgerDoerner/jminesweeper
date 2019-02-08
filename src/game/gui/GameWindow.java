@@ -55,6 +55,7 @@ public class GameWindow extends JFrame implements Runnable {
 		private final int	positionY;
 		private final int	positionX;
 		private boolean		active	= true;
+		private boolean 	clicked = false;
 		
 		/**
 		 * getter for the y-position
@@ -123,6 +124,7 @@ public class GameWindow extends JFrame implements Runnable {
 					if (e.getButton() == MouseEvent.BUTTON1 & _this_.active) { // left mouse-button
 						Game.revealField(_this_.positionY, _this_.positionX);
 						_this_.active = false;
+						_this_.clicked = true;
 					} else if (e.getButton() == MouseEvent.BUTTON3 & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
 						_this_.active = false;
@@ -170,6 +172,8 @@ public class GameWindow extends JFrame implements Runnable {
 				
 				case Game.BOMB:
 					this.setText("\uD83D\uDCA3");
+					if (this.clicked)
+						this.setBackground(Color.RED);
 					this.active = false;
 					break;
 				

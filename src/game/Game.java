@@ -19,7 +19,7 @@ import game.util.SaveGameUtility;
 /**
  * main class of the game
  * 
- * @author Holger DÃ¶rner
+ * @author Holger Dörner
  */
 public class Game {
 	// global game constants
@@ -330,7 +330,7 @@ public class Game {
 		sizeY = level.getSizeY();
 		sizeX = level.getSizeX();
 		
-		numFlags = (sizeY * sizeX) / 2;
+		numFlags = numBombs;
 		
 		touchedFields = new LinkedHashMap<>();
 		
@@ -405,7 +405,7 @@ public class Game {
 		sizeY = y;
 		sizeX = x;
 		numBombs = b;
-		numFlags = (y * x) / 2;
+		numFlags = numBombs;
 		
 		safeFields = (sizeY * sizeX) - numBombs;
 		
@@ -499,7 +499,7 @@ public class Game {
 		
 		// at startup always start a default game.
 		// y=8, x=8, bombs=10
-		newGame(8, 8, 10);
+		threadPool.execute(() -> newGame(8, 8, 10));
 		
 		barrier.await();
 	}
