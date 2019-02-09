@@ -19,7 +19,7 @@ import game.util.SaveGameUtility;
 /**
  * main class of the game
  * 
- * @author Holger Dörner
+ * @author Holger DÃ¶rner
  */
 public class Game {
 	// global game constants

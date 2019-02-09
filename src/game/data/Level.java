@@ -18,7 +18,7 @@ import game.Game;
  * </ul>
  * </p>
  * 
- * @author Holger Dörner
+ * @author Holger DÃ¶rner
  *
  */
 public interface Level {
