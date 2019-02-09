@@ -494,7 +494,7 @@ public class Game {
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
 		barrier = new CyclicBarrier(2, () -> {
 			if (DEBUG)
-				System.out.println("Barrier - - - GAME START - - - breached");
+				System.out.println("- - - GAME START - - -");
 		});
 		
 		threadPool = Executors.newFixedThreadPool(4);
