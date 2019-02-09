@@ -2,7 +2,7 @@
 A simple Minesweeper-like Game written in Java.
 
 ## Info
-**Project Type:** *plain Eclipse Project*
+**Project Type:** *Maven Project*
 
 **External Dependencies:** *none*
 
