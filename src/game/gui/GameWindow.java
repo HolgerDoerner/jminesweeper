@@ -33,15 +33,15 @@ import game.Game;
  */
 public class GameWindow extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
-	
-	private JPanel				pnlMain		= new JPanel();
-	private final JPanel		pnlMenu		= new JPanel();
-	private final JLabel		lblSmiley	= new JLabel();
-	private final JLabel		lblTime		= new JLabel("000");
-	private final JLabel		lblBombs	= new JLabel("000");
-	private final JLabel		lblStatus	= new JLabel(" ");
-	private Map<String, Field>	gameFields;
-	
+
+	private JPanel pnlMain = new JPanel();
+	private final JPanel pnlMenu = new JPanel();
+	private final JLabel lblSmiley = new JLabel();
+	private final JLabel lblTime = new JLabel("000");
+	private final JLabel lblBombs = new JLabel("000");
+	private final JLabel lblStatus = new JLabel(" ");
+	private Map<String, Field> gameFields;
+
 	/**
 	 * inner class encapsulating the logic for the fields
 	 * 
@@ -50,13 +50,13 @@ public class GameWindow extends JFrame implements Runnable {
 	 */
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
-		
-		private final Field	_this_;
-		private final int	positionY;
-		private final int	positionX;
-		private boolean		active	= true;
-		private boolean 	clicked = false;
-		
+
+		private final Field _this_;
+		private final int positionY;
+		private final int positionX;
+		private boolean active = true;
+		private boolean clicked = false;
+
 		/**
 		 * getter for the y-position
 		 * 
@@ -66,7 +66,7 @@ public class GameWindow extends JFrame implements Runnable {
 		int getPositionY() {
 			return positionY;
 		}
-		
+
 		/**
 		 * getter for the x-position
 		 * 
@@ -76,7 +76,7 @@ public class GameWindow extends JFrame implements Runnable {
 		int getPositionX() {
 			return positionX;
 		}
-		
+
 		/**
 		 * getter to retrieve the status of a field.
 		 * 
@@ -88,7 +88,7 @@ public class GameWindow extends JFrame implements Runnable {
 		boolean isActive() {
 			return active;
 		}
-		
+
 		/**
 		 * only used when global debugging is on.
 		 * 
@@ -98,7 +98,7 @@ public class GameWindow extends JFrame implements Runnable {
 		private void setDebugText(char text) {
 			this.setText("" + text);
 		}
-		
+
 		/**
 		 * constructor of the field.
 		 * 
@@ -110,13 +110,13 @@ public class GameWindow extends JFrame implements Runnable {
 			_this_ = this;
 			this.positionY = y;
 			this.positionX = x;
-			
+
 			this.setPreferredSize(new Dimension(30, 30));
 			this.setFont(new Font(null, Font.TRUETYPE_FONT, 20));
 			this.setMargin(new Insets(0, 0, 0, 0));
 			this.setBackground(Color.LIGHT_GRAY);
 			this.setBorder(new BevelBorder(BevelBorder.RAISED));
-			
+
 			// handler for mouse-clicks
 			this.addMouseListener(new MouseAdapter() {
 				@Override
@@ -128,32 +128,32 @@ public class GameWindow extends JFrame implements Runnable {
 					} else if (e.getButton() == MouseEvent.BUTTON3 & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
 					}
-					
+
 					if (Game.gameRunning)
 						updateSmilie(1); // reset smiley when mouse-button is released
-						
+
 					if (Game.DEBUG)
 						System.out.println("Clicked Field: " + _this_.getPositionY() + "x" + _this_.getPositionX()
 								+ "\tMouse-Button: " + e.getButton());
 				}
-				
+
 				@Override
 				public void mousePressed(MouseEvent e) {
 					// update smiley when mouse-button is pressed
 					if (Game.gameRunning)
 						updateSmilie(0);
 				}
-				
+
 				@Override
 				public void mouseEntered(MouseEvent e) {
 				}
-				
+
 				@Override
 				public void mouseExited(MouseEvent e) {
 				}
 			});
 		}
-		
+
 		/**
 		 * lets a field update itself and reveal what's underneath
 		 * 
@@ -165,26 +165,21 @@ public class GameWindow extends JFrame implements Runnable {
 				this.setText("\uD83D\uDCA3");
 				if (this.clicked)
 					this.setBackground(Color.RED);
-			}
-			else if (fieldValue == Game.FLAGGED_BOMB) {
+			} else if (fieldValue == Game.FLAGGED_BOMB) {
 				this.setText("\uD83C\uDFF4");
 				this.setForeground(Color.RED);
-			}
-			else if (fieldValue >= 'a' & fieldValue <= 'i') {
+			} else if (fieldValue >= 'a' & fieldValue <= 'i') {
 				this.setText("\uD83C\uDFF4");
 				this.setForeground(Color.RED);
-			}
-			else if (fieldValue == Game.UNTOUCHED) {
+			} else if (fieldValue == Game.UNTOUCHED) {
 				this.setText("");
 				this.setForeground(Color.BLACK);
-			}
-			else if (fieldValue == Game.EMPTY) {
+			} else if (fieldValue == Game.EMPTY) {
 				this.setBackground(Color.GRAY);
 				this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 				this.setText("");
 				this.active = false;
-			}
-			else {
+			} else {
 				this.setBackground(Color.GRAY);
 				this.setBorder(new BevelBorder(BevelBorder.LOWERED));
 				if (fieldValue > Game.EMPTY & fieldValue < '9') {
@@ -200,7 +195,7 @@ public class GameWindow extends JFrame implements Runnable {
 			}
 		}
 	}
-	
+
 	/**
 	 * inner class encapsulating the logic for the menubar.
 	 * 
@@ -209,19 +204,19 @@ public class GameWindow extends JFrame implements Runnable {
 	 */
 	private class MainMenu extends JMenuBar {
 		private static final long serialVersionUID = 1L;
-		
-		private final JMenu		gameMenu			= new JMenu("Game");
-		private final JMenu		newGameMenu			= new JMenu("New");
-		private final JMenu		debugMenu			= new JMenu("Debug");
-		private final JMenuItem	newEasyGame			= new JMenuItem("Easy");
-		private final JMenuItem	newMediumGame		= new JMenuItem("Medium");
-		private final JMenuItem	newHardGame			= new JMenuItem("Hard");
-		private final JMenuItem	newCustomGame		= new JMenuItem("Custom");
-		private final JMenuItem	loadMenuItem		= new JMenuItem("Load");
-		private final JMenuItem	saveMenuItem		= new JMenuItem("Save");
-		private final JMenuItem	exitMenuItem		= new JMenuItem("Exit");
-		private final JMenuItem	dbgPrintMenuItem	= new JMenuItem("Print level to console");
-		
+
+		private final JMenu gameMenu = new JMenu("Game");
+		private final JMenu newGameMenu = new JMenu("New");
+		private final JMenu debugMenu = new JMenu("Debug");
+		private final JMenuItem newEasyGame = new JMenuItem("Easy");
+		private final JMenuItem newMediumGame = new JMenuItem("Medium");
+		private final JMenuItem newHardGame = new JMenuItem("Hard");
+		private final JMenuItem newCustomGame = new JMenuItem("Custom");
+		private final JMenuItem loadMenuItem = new JMenuItem("Load");
+		private final JMenuItem saveMenuItem = new JMenuItem("Save");
+		private final JMenuItem exitMenuItem = new JMenuItem("Exit");
+		private final JMenuItem dbgPrintMenuItem = new JMenuItem("Print level to console");
+
 		private MainMenu() {
 			newEasyGame.addActionListener(e -> Game.newGame(8, 8, 10));
 			newMediumGame.addActionListener(e -> Game.newGame(16, 16, 40));
@@ -230,38 +225,38 @@ public class GameWindow extends JFrame implements Runnable {
 			loadMenuItem.addActionListener(e -> Game.loadFromFile());
 			saveMenuItem.addActionListener(e -> Game.saveToFile());
 			exitMenuItem.addActionListener(e -> Game.exitGame());
-			
+
 			// only in DEBUG-mode
 			dbgPrintMenuItem.addActionListener(e -> Game.printLevel());
-			
+
 			newGameMenu.add(newEasyGame);
 			newGameMenu.add(newMediumGame);
 			newGameMenu.add(newHardGame);
 			newGameMenu.add(new JSeparator());
 			newGameMenu.add(newCustomGame);
-			
+
 			gameMenu.add(newGameMenu);
 			gameMenu.add(new JSeparator());
 			gameMenu.add(loadMenuItem);
 			gameMenu.add(saveMenuItem);
 			gameMenu.add(new JSeparator());
 			gameMenu.add(exitMenuItem);
-			
+
 			debugMenu.add(dbgPrintMenuItem);
-			
+
 			this.add(gameMenu);
-			
+
 			if (Game.DEBUG)
 				this.add(debugMenu);
 		}
 	}
-	
+
 	/**
 	 * default no-args constructor for the gui
 	 */
 	public GameWindow() {
 	}
-	
+
 	/**
 	 * 
 	 * @return a list of all fields on the gameboard
@@ -269,7 +264,7 @@ public class GameWindow extends JFrame implements Runnable {
 	Map<String, Field> getGameFields() {
 		return this.gameFields;
 	}
-	
+
 	/**
 	 * updates touched fields on the gameboard when a level is loaded from file.
 	 * 
@@ -281,7 +276,7 @@ public class GameWindow extends JFrame implements Runnable {
 		touchedFields.entrySet().forEach(
 				entry -> Game.threadPool.execute(() -> gameFields.get(entry.getKey()).updateField(entry.getValue())));
 	}
-	
+
 	/**
 	 * updates all fields on the board
 	 * 
@@ -293,9 +288,9 @@ public class GameWindow extends JFrame implements Runnable {
 				field.updateField(data[field.getPositionY()][field.getPositionX()]);
 			});
 		});
-		
+
 	}
-	
+
 	/**
 	 * updates a single field on the gameboard.
 	 * 
@@ -306,7 +301,7 @@ public class GameWindow extends JFrame implements Runnable {
 	public void updateField(final int y, final int x, final char status) {
 		gameFields.get(y + "-" + x).updateField(status);
 	}
-	
+
 	/**
 	 * most important method in the game, makes the smiley alive ;-)
 	 * 
@@ -321,28 +316,28 @@ public class GameWindow extends JFrame implements Runnable {
 	 */
 	public void updateSmilie(int status) {
 		switch (status) {
-			// mouse down
-			case 0:
-				this.lblSmiley.setText("\uD83D\uDE2F");
-				break;
-			
-			// mouse up / default
-			case 1:
-				this.lblSmiley.setText("\uD83D\uDE0A");
-				break;
-			
-			// victory
-			case 2:
-				this.lblSmiley.setText("\uD83D\uDE0E");
-				break;
-			
-			// defeat
-			case 3:
-				this.lblSmiley.setText("\uD83D\uDE2D");
-				break;
+		// mouse down
+		case 0:
+			this.lblSmiley.setText("\uD83D\uDE2F");
+			break;
+
+		// mouse up / default
+		case 1:
+			this.lblSmiley.setText("\uD83D\uDE0A");
+			break;
+
+		// victory
+		case 2:
+			this.lblSmiley.setText("\uD83D\uDE0E");
+			break;
+
+		// defeat
+		case 3:
+			this.lblSmiley.setText("\uD83D\uDE2D");
+			break;
 		}
 	}
-	
+
 	/**
 	 * shows the raw level-data on the fields. only used when Game.DEBUG is set.
 	 * 
@@ -353,7 +348,7 @@ public class GameWindow extends JFrame implements Runnable {
 			field.setDebugText(data[field.getPositionY()][field.getPositionX()]);
 		}
 	}
-	
+
 	/**
 	 * updates the status-label beneath the gamefield.
 	 * 
@@ -362,25 +357,25 @@ public class GameWindow extends JFrame implements Runnable {
 	public void updateStatusLabel(String statusText) {
 		this.lblStatus.setText(statusText);
 	}
-	
+
 	public void updateTimer(String time) {
 		if (time.length() == 1)
 			time = "00" + time;
 		if (time.length() == 2)
 			time = "0" + time;
-		
+
 		this.lblTime.setText(time);
 	}
-	
+
 	public void updateBombCounter(String numBombs) {
 		if (numBombs.length() == 1)
 			numBombs = "00" + numBombs;
 		if (numBombs.length() == 2)
 			numBombs = "0" + numBombs;
-		
+
 		this.lblBombs.setText(numBombs);
 	}
-	
+
 	/**
 	 * generates a new board inside of the main-window. should a board already
 	 * exist, it gets deleted.
@@ -392,59 +387,59 @@ public class GameWindow extends JFrame implements Runnable {
 		this.remove(pnlMain);
 		this.pnlMain = new JPanel();
 		this.pnlMain.setLayout(new GridLayout(sizeY, sizeX));
-		
+
 		this.gameFields = new LinkedHashMap<>();
-		
+
 		for (int i = 0; i < sizeY; i++) {
 			for (int j = 0; j < sizeX; j++) {
 				Field f = new Field(i, j);
 				this.gameFields.put(i + "-" + j, f);
 				this.pnlMain.add(f);
-				
+
 				if (Game.DEBUG)
 					System.out.println("Generated Field: y" + i + " x" + j);
 			}
 		}
-		
+
 		this.add(pnlMain, BorderLayout.CENTER);
 		this.pack();
-		
+
 		updateSmilie(1);
 	}
-	
+
 	/**
 	 * let the gui run in its own thread.
 	 */
 	@Override
 	public void run() {
 		Thread.currentThread().setName("User-Interface");
-		
+
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
 		this.lblSmiley.setAlignmentX(CENTER_ALIGNMENT);
 		this.lblSmiley.setText("\uD83D\uDE0A");
-		
+
 		this.lblTime.setFont(new Font(null, Font.BOLD, 30));
-		
+
 		this.lblBombs.setFont(new Font(null, Font.BOLD, 30));
-		
+
 		this.pnlMenu.add(lblBombs);
 		this.pnlMenu.add(Box.createHorizontalStrut(20));
 		this.pnlMenu.add(lblSmiley);
 		this.pnlMenu.add(Box.createHorizontalStrut(20));
 		this.pnlMenu.add(lblTime);
-		
+
 		this.setLayout(new BorderLayout());
-		
+
 		this.setJMenuBar(new MainMenu());
-		
+
 		this.add(pnlMenu, BorderLayout.NORTH);
 		this.add(lblStatus, BorderLayout.SOUTH);
-		
+
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
-		
+
 		// at this point we make sure that everything is ready
 		// so we have to wait for the other tasks to finish their job
 		try {
@@ -453,7 +448,7 @@ public class GameWindow extends JFrame implements Runnable {
 			if (Game.DEBUG)
 				e.printStackTrace();
 		}
-		
+
 		this.setVisible(true);
 	}
 }

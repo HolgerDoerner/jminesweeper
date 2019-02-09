@@ -4,8 +4,15 @@
   <artifactId>jminesweeper</artifactId>
   <version>1.0.0</version>
   <name>jMinesweeper</name>
-  <description>simple minesweeper-like game
-</description>
+  <description>simple minesweeper-like game</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>11</java.version>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+  </properties>
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
