@@ -444,7 +444,7 @@ public class Game {
 	/**
 	 * measures the elapsed time for the current level in seconds.
 	 */
-	private static void startTimer() {
+	private static synchronized void startTimer() {
 		timer = threadPool.submit(() -> {
 			Thread.currentThread().setName("Time-Counter");
 
@@ -472,7 +472,7 @@ public class Game {
 	/**
 	 * resets the timer by setting time to 0 (zero)
 	 */
-	private static void stopTimer() {
+	private static synchronized void stopTimer() {
 		if (timer != null)
 			timer.cancel(true);
 	}
