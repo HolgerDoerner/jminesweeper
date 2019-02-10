@@ -77,14 +77,4 @@ public final class GameDialogs {
 		else
 			return null;
 	}
-	
-	
-	public static void showDefeatDialog(Component parent) {
-		JOptionPane.showMessageDialog(parent, "Dude, you had ONE job...", "GAME OVER", JOptionPane.ERROR_MESSAGE);
-	}
-	
-	public static void showVictoryDialog(Component parent) {
-		JOptionPane.showMessageDialog(parent, "You have WON this level !!!", "VICTORY !!!",
-				JOptionPane.INFORMATION_MESSAGE);
-	}
 }

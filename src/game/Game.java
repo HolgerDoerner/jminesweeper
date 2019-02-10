@@ -257,8 +257,6 @@ public class Game {
 
 		gameWindow.updateAllFields(level.getLevelData());
 		gameWindow.updateSmilie(3);
-
-		Game.threadPool.execute(() -> GameDialogs.showDefeatDialog(gameWindow));
 	}
 
 	/**
@@ -272,8 +270,6 @@ public class Game {
 
 		gameWindow.updateAllFields(level.getLevelData());
 		gameWindow.updateSmilie(2);
-
-		Game.threadPool.execute(() -> GameDialogs.showVictoryDialog(gameWindow));
 	}
 
 	/**
