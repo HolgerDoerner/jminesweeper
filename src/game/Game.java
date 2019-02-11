@@ -18,7 +18,7 @@ import game.util.SaveGameUtility;
 
 /**
  * main class of the game
- * 
+ *
  * @author Holger Dörner
  */
 public class Game {
@@ -54,7 +54,7 @@ public class Game {
 	/**
 	 * calculates the fields of an level and updates the array before the game
 	 * starts.
-	 * 
+	 *
 	 * it traverses an two-dimensional array linear and checks the neighbor indexes
 	 * for bombs. if it finds one it updates the current index and increases the
 	 * value by 1.
@@ -103,7 +103,7 @@ public class Game {
 
 	/**
 	 * marks field with a flag when the player right-clicks on it
-	 * 
+	 *
 	 * @param positionY the vertical position
 	 * @param positionX the horizontal position
 	 */
@@ -139,7 +139,7 @@ public class Game {
 	 * reveals a field and checks if neighbor fields can also be revealed. if this
 	 * is the case it calls itself in a new process for the neighbor field and so on
 	 * until no neighbor field is left to reveal.
-	 * 
+	 *
 	 * @param positionY the vertical position of the field
 	 * @param positionX the horizontal position of the field
 	 */
@@ -276,7 +276,7 @@ public class Game {
 	 * saves the current level to a file on disc and produces some kind of
 	 * 'savegame'. if the file already exists it will be ovewritten, if not a new
 	 * file will be created.
-	 * 
+	 *
 	 * @param path a path to a file on disc
 	 */
 	public static void saveToFile() {
@@ -371,11 +371,11 @@ public class Game {
 	 * start a new game and present a dialog letting the player make the desired
 	 * settings.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * deligates to newGame(int, int, int).
 	 * </p>
-	 * 
+	 *
 	 * @see game.Game.newGame(int,int,int)
 	 */
 	public static void newGame() {
@@ -389,7 +389,7 @@ public class Game {
 
 	/**
 	 * starts a new game with the settings passed as arguments.
-	 * 
+	 *
 	 * @param y the vertical size
 	 * @param x the horizontal size
 	 * @param b the number of bombs
@@ -434,7 +434,7 @@ public class Game {
 
 	/**
 	 * wrapper-method around System.exit()
-	 * 
+	 *
 	 * @see java.lang.System.exit
 	 */
 	public static void exitGame() {
@@ -479,7 +479,7 @@ public class Game {
 
 	/**
 	 * entry point of the game
-	 * 
+	 *
 	 * @param args
 	 * @throws InterruptedException
 	 * @throws BrokenBarrierException

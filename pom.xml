@@ -31,7 +31,7 @@
 	  <version>5.4.0-M1</version>
 	</dependency>
   </dependencies>
-  
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>tests</testSourceDirectory>
