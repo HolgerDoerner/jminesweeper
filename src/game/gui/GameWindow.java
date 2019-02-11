@@ -123,8 +123,8 @@ public class GameWindow extends JFrame implements Runnable {
 				public void mouseReleased(MouseEvent e) {
 					if (e.getButton() == MouseEvent.BUTTON1 & _this_.active) { // left mouse-button
 						Game.revealField(_this_.positionY, _this_.positionX);
-						_this_.active = false;
-						_this_.clicked = true;
+						//_this_.active = false;
+						//_this_.clicked = true;
 					} else if (e.getButton() == MouseEvent.BUTTON3 & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
 					}
@@ -360,11 +360,11 @@ public class GameWindow extends JFrame implements Runnable {
 
 	public void updateTimer(String time) {
 		if (time.length() == 1)
-			time = "00" + time;
-		if (time.length() == 2)
-			time = "0" + time;
-
-		this.lblTime.setText(time);
+            this.lblTime.setText("00" + time);
+        else if (time.length() == 2)
+            this.lblTime.setText("0" + time);
+        else if (time.length() == 3)
+            this.lblTime.setText(time);
 	}
 
 	public void updateBombCounter(String numBombs) {

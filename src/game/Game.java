@@ -24,7 +24,7 @@ import game.util.SaveGameUtility;
 public class Game {
 	// global game constants
 	////////////////////////
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final char BOMB = '@';
 	public static final char EMPTY = '0';
 	public static final char UNTOUCHED = 'O';
