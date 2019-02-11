@@ -27,9 +27,9 @@ import game.Game;
 
 /**
  * main user interface of the game
- * 
+ *
  * @author Holger Dörner
- * 
+ *
  */
 public class GameWindow extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -44,9 +44,9 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * inner class encapsulating the logic for the fields
-	 * 
+	 *
 	 * @author Holger Dörner
-	 * 
+	 *
 	 */
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
@@ -59,9 +59,9 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * getter for the y-position
-		 * 
+		 *
 		 * @return the y-position of the field on the gameboard
-		 * 
+		 *
 		 */
 		int getPositionY() {
 			return positionY;
@@ -69,9 +69,9 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * getter for the x-position
-		 * 
+		 *
 		 * @return the x-position of the field on the gameboard
-		 * 
+		 *
 		 */
 		int getPositionX() {
 			return positionX;
@@ -79,11 +79,11 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * getter to retrieve the status of a field.
-		 * 
+		 *
 		 * true = the field wasn't revealed. false = the field is revealed.
-		 * 
+		 *
 		 * @return boolean indicating the status of the field
-		 * 
+		 *
 		 */
 		boolean isActive() {
 			return active;
@@ -91,9 +91,8 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * only used when global debugging is on.
-		 * 
+		 *
 		 * @param text the character in the level on the position of this field
-		 * 
 		 */
 		private void setDebugText(char text) {
 			this.setText("" + text);
@@ -101,10 +100,9 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * constructor of the field.
-		 * 
+		 *
 		 * @param y the vertical position of the field
 		 * @param x the horizontal position of the field
-		 * 
 		 */
 		private Field(int y, int x) {
 			_this_ = this;
@@ -156,9 +154,8 @@ public class GameWindow extends JFrame implements Runnable {
 
 		/**
 		 * lets a field update itself and reveal what's underneath
-		 * 
+		 *
 		 * @param fieldValue represents the status hidden under the field
-		 * 
 		 */
 		void updateField(final char fieldValue) {
 			if (fieldValue == Game.BOMB) {
@@ -198,9 +195,8 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * inner class encapsulating the logic for the menubar.
-	 * 
-	 * Holger Dörner
 	 *
+	 *  @author Holger Dörner
 	 */
 	private class MainMenu extends JMenuBar {
 		private static final long serialVersionUID = 1L;
@@ -258,7 +254,7 @@ public class GameWindow extends JFrame implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return a list of all fields on the gameboard
 	 */
 	Map<String, Field> getGameFields() {
@@ -267,9 +263,9 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * updates touched fields on the gameboard when a level is loaded from file.
-	 * 
+	 *
 	 * format for the key is 'y-x'.
-	 * 
+	 *
 	 * @param touchedFields a java.util.Map containing the field-data
 	 */
 	public void updateTouchedFields(final Map<String, Character> touchedFields) {
@@ -279,7 +275,7 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * updates all fields on the board
-	 * 
+	 *
 	 * @param data the level data
 	 */
 	public void updateAllFields(final char[][] data) {
@@ -293,7 +289,7 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * updates a single field on the gameboard.
-	 * 
+	 *
 	 * @param y      the vertical position on the gameboard
 	 * @param x      the horizontal position on the gameboard
 	 * @param status the status for the field to set
@@ -304,14 +300,14 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * most important method in the game, makes the smiley alive ;-)
-	 * 
+	 *
 	 * <ul>
 	 * <li>0 - mouse down</li>
 	 * <li>1 - mouse up</li>
 	 * <li>2 - victory</li>
 	 * <li>3 - defeat</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param status the status of the smiley (0-3)
 	 */
 	public void updateSmilie(int status) {
@@ -340,7 +336,7 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * shows the raw level-data on the fields. only used when Game.DEBUG is set.
-	 * 
+	 *
 	 * @param data an array containing the level data
 	 */
 	public void debugView(char[][] data) {
@@ -351,7 +347,7 @@ public class GameWindow extends JFrame implements Runnable {
 
 	/**
 	 * updates the status-label beneath the gamefield.
-	 * 
+	 *
 	 * @param statusText a java.lang.String containing the text to display
 	 */
 	public void updateStatusLabel(String statusText) {
@@ -379,7 +375,7 @@ public class GameWindow extends JFrame implements Runnable {
 	/**
 	 * generates a new board inside of the main-window. should a board already
 	 * exist, it gets deleted.
-	 * 
+	 *
 	 * @param sizeY the vertical size
 	 * @param sizeX the horizontal size
 	 */
