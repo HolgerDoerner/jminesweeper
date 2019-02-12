@@ -45,7 +45,6 @@ public class Game {
 	private static int sizeX;
 	private static int numBombs;
 	private static int bombCount;
-	private static int numFlags;
 	private static int safeFields;
 	private static GameWindow gameWindow;
 	private static Map<String, Character> touchedFields;
@@ -108,27 +107,20 @@ public class Game {
 	 * @param positionX the horizontal position
 	 */
 	public static synchronized void markField(final int positionY, final int positionX) {
-		if (numFlags == 0)
-			return;
-
 		if (level.get(positionY, positionX) == BOMB) {
 			level.set(positionY, positionX, FLAGGED_BOMB);
 			threadPool.execute(() -> gameWindow.updateField(positionY, positionX, FLAGGED_BOMB));
 			bombCount--;
-			numFlags--;
 		} else if (level.get(positionY, positionX) == FLAGGED_BOMB) {
 			level.set(positionY, positionX, BOMB);
 			threadPool.execute(() -> gameWindow.updateField(positionY, positionX, UNTOUCHED));
 			bombCount++;
-			numFlags++;
 		} else if (level.get(positionY, positionX) >= 'a') {
 			level.set(positionY, positionX, (char) (level.get(positionY, positionX) - 49));
 			threadPool.execute(() -> gameWindow.updateField(positionY, positionX, UNTOUCHED));
-			numFlags++;
 		} else {
 			level.set(positionY, positionX, (char) (level.get(positionY, positionX) + 49));
 			threadPool.execute(() -> gameWindow.updateField(positionY, positionX, level.get(positionY, positionX)));
-			numFlags--;
 		}
 
 		gameWindow.updateBombCounter("" + bombCount);
@@ -301,7 +293,6 @@ public class Game {
 		sizeY = 0;
 		sizeX = 0;
 		numBombs = 0;
-		numFlags = 0;
 		safeFields = 0;
 
 		Path filePath = GameDialogs.showLoadGameDialog(gameWindow);
@@ -325,8 +316,6 @@ public class Game {
 
 		sizeY = level.getSizeY();
 		sizeX = level.getSizeX();
-
-		numFlags = numBombs;
 
 		touchedFields = new LinkedHashMap<>();
 
@@ -414,7 +403,6 @@ public class Game {
 		sizeY = y;
 		sizeX = x;
 		numBombs = b;
-		numFlags = numBombs;
 		bombCount = numBombs;
 
 		safeFields = (sizeY * sizeX) - numBombs;
