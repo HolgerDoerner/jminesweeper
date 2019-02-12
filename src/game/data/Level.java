@@ -9,7 +9,7 @@ import game.Game;
  * <p>
  * an interface describing a level for the game.
  * </p>
- * 
+ *
  * <p>
  * it defines two static factory-methods wich both return concrete instances of the interface: 
  * <ul>
@@ -17,20 +17,20 @@ import game.Game;
  * <li>{@code fromExistingData(char[][])}</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Holger Dörner
  *
  */
 public interface Level {
 	/**
 	 * returns the value from the given position in the level.
-	 * 
+	 *
 	 * @param positionY the vertical position
 	 * @param positionX the horizontal position
 	 * @return the the value stored at the given position
 	 */
 	public char get(final int positionY, final int positionX);
-	
+
 	/**
 	 * sets a new value at the given position in the level.
 	 *
@@ -39,7 +39,7 @@ public interface Level {
 	 * @param value the new value to be stored at the given position
 	 */
 	public void set(final int positionY, final int positionX, final char value);
-	
+
 	/**
 	 * increments the value at the given position by 1.
 	 *
@@ -47,28 +47,28 @@ public interface Level {
 	 * @param positionX the horizontal position
 	 */
 	public void increment(final int positionY, final int positionX);
-	
+
 	/**
 	 * returns the vertical size of the level.
 	 *
 	 * @returnthe vertical size
 	 */
 	public int getSizeY();
-	
+
 	/**
 	 * returns the horizontal size of the level.
 	 *
 	 * @return the horizontal size
 	 */
 	public int getSizeX();
-	
+
 	/**
 	 * returns the raw data of the level as a 2-dimensional-array.
 	 *
 	 * @return the raw level data
 	 */
 	public char[][] getLevelData();
-	
+
 	/**
 	 * returns a instance of {@code game.data.Level} based on existing data.
 	 *
