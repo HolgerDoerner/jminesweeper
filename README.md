@@ -6,4 +6,4 @@ A simple Minesweeper-like Game written in Java.
 
 **External Dependencies:** *none*
 
-**Jave-Version:** *>= 1.8* 
+**Jave-Version:** *>= 1.8*
