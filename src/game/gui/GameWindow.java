@@ -1,5 +1,9 @@
 package game.gui;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,10 +12,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.BrokenBarrierException;
-
+import java.awt.event.MouseListener;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -413,6 +414,21 @@ public class GameWindow extends JFrame implements Runnable {
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
 		this.lblSmiley.setAlignmentX(CENTER_ALIGNMENT);
 		this.lblSmiley.setText("\uD83D\uDE0A");
+        this.lblSmiley.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                Game.newGame(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+        });
 
 		this.lblTime.setFont(new Font(null, Font.BOLD, 30));
 
