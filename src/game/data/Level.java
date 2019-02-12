@@ -132,9 +132,6 @@ public interface Level {
 		if (fieldsize <= numBombs)
 			throw new IllegalStateException("Number of Bombs musst be lower than size of level!");
 
-		@SuppressWarnings("unused")
-		int untouchedCountdown = 0;
-
 		char[][] level = new char[y][x];
 
 		for (char[] c : level) {
