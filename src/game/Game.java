@@ -355,17 +355,18 @@ public class Game {
 		startTimer();
 	}
 
-    /**
-     * start a new game with the same settings as the last one.
-     *
-     * @param lastSettings a java.lang.boolean indicating if last settings should be re-used
-     */
-    public static void newGame(boolean lastSettings) {
-        if  (lastSettings == false)
-            return;
+	/**
+	 * start a new game with the same settings as the last one.
+	 *
+	 * @param lastSettings a java.lang.boolean indicating if last settings should be
+	 *                     re-used
+	 */
+	public static void newGame(boolean lastSettings) {
+		if (lastSettings == false)
+			return;
 
-        newGame(sizeY, sizeX, numBombs);
-    }
+		newGame(sizeY, sizeX, numBombs);
+	}
 
 	/**
 	 * <p>
@@ -456,6 +457,8 @@ public class Game {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					Thread.sleep(1000);
+					if (time == 999)
+						break;
 					gameWindow.updateTimer("" + time++);
 				} catch (InterruptedException e) {
 					break;
@@ -485,7 +488,7 @@ public class Game {
 	 * @throws BrokenBarrierException
 	 */
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
-        barrier = new CyclicBarrier(2, () -> {
+		barrier = new CyclicBarrier(2, () -> {
 			if (DEBUG)
 				System.out.println("- - - GAME START - - -");
 		});

@@ -362,7 +362,7 @@ public class GameWindow extends JFrame implements Runnable {
 			this.lblTime.setText("00" + time);
 		else if (time.length() == 2)
 			this.lblTime.setText("0" + time);
-		else if (time.length() == 3)
+		else //if (time.length() == 3)
 			this.lblTime.setText(time);
 	}
 
