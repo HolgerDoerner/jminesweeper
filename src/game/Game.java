@@ -452,14 +452,14 @@ public class Game {
 			if (DEBUG)
 				System.out.println(Thread.currentThread().getName() + " started!");
 
-			int time = 0;
+			int time = 990;
 
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					Thread.sleep(1000);
-					if (time == 999)
-						break;
 					gameWindow.updateTimer("" + time++);
+					if (time > 999)
+						break;
 				} catch (InterruptedException e) {
 					break;
 				}
