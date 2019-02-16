@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -455,10 +456,8 @@ public class GameWindow extends JFrame implements Runnable {
 
 		this.add(pnlMenu, BorderLayout.NORTH);
 		this.add(lblStatus, BorderLayout.SOUTH);
-		
-		ImageIcon icon = new ImageIcon("resources/icons/icon.png");
 
-		this.setIconImage(icon.getImage());
+		this.setIconImage(new ImageIcon("icon.png").getImage());
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
