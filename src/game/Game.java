@@ -24,7 +24,7 @@ import game.util.SaveGameUtility;
 public class Game {
 	// global game constants
 	////////////////////////
-	public static boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final char BOMB = '@';
 	public static final char EMPTY = '0';
 	public static final char UNTOUCHED = 'O';
@@ -485,10 +485,7 @@ public class Game {
 	 * @throws BrokenBarrierException
 	 */
 	public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
-        if (args.length == 1 && args[0].equalsIgnoreCase("debug"))
-                DEBUG = true;
-
-		barrier = new CyclicBarrier(2, () -> {
+        barrier = new CyclicBarrier(2, () -> {
 			if (DEBUG)
 				System.out.println("- - - GAME START - - -");
 		});

@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,13 +36,13 @@ import game.Game;
 public class GameWindow extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private JPanel pnlMain = new JPanel();
-	private final JPanel pnlMenu = new JPanel();
-	private final JLabel lblSmiley = new JLabel();
-	private final JLabel lblTime = new JLabel("000");
-	private final JLabel lblBombs = new JLabel("000");
-	private final JLabel lblStatus = new JLabel(" ");
-	private Map<String, Field> gameFields;
+	private JPanel				pnlMain		= new JPanel();
+	private final JPanel		pnlMenu		= new JPanel();
+	private final JLabel		lblSmiley	= new JLabel();
+	private final JLabel		lblTime		= new JLabel("000");
+	private final JLabel		lblBombs	= new JLabel("000");
+	private final JLabel		lblStatus	= new JLabel(" ");
+	private Map<String, Field>	gameFields;
 
 	/**
 	 * inner class encapsulating the logic for the fields
@@ -52,11 +53,11 @@ public class GameWindow extends JFrame implements Runnable {
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
 
-		private final Field _this_;
-		private final int positionY;
-		private final int positionX;
-		private boolean active = true;
-		private boolean clicked = false;
+		private final Field	_this_;
+		private final int	positionY;
+		private final int	positionX;
+		private boolean		active	= true;
+		private boolean		clicked	= false;
 
 		/**
 		 * getter for the y-position
@@ -122,8 +123,8 @@ public class GameWindow extends JFrame implements Runnable {
 				public void mouseReleased(MouseEvent e) {
 					if (e.getButton() == MouseEvent.BUTTON1 & _this_.active) { // left mouse-button
 						Game.revealField(_this_.positionY, _this_.positionX);
-						//_this_.active = false;
-						//_this_.clicked = true;
+						// _this_.active = false;
+						// _this_.clicked = true;
 					} else if (e.getButton() == MouseEvent.BUTTON3 & _this_.active) { // right mouse-button
 						Game.markField(_this_.positionY, _this_.positionX);
 					}
@@ -197,22 +198,22 @@ public class GameWindow extends JFrame implements Runnable {
 	/**
 	 * inner class encapsulating the logic for the menubar.
 	 *
-	 *  @author Holger Dörner
+	 * @author Holger Dörner
 	 */
 	private class MainMenu extends JMenuBar {
 		private static final long serialVersionUID = 1L;
 
-		private final JMenu gameMenu = new JMenu("Game");
-		private final JMenu newGameMenu = new JMenu("New");
-		private final JMenu debugMenu = new JMenu("Debug");
-		private final JMenuItem newEasyGame = new JMenuItem("Easy");
-		private final JMenuItem newMediumGame = new JMenuItem("Medium");
-		private final JMenuItem newHardGame = new JMenuItem("Hard");
-		private final JMenuItem newCustomGame = new JMenuItem("Custom");
-		private final JMenuItem loadMenuItem = new JMenuItem("Load");
-		private final JMenuItem saveMenuItem = new JMenuItem("Save");
-		private final JMenuItem exitMenuItem = new JMenuItem("Exit");
-		private final JMenuItem dbgPrintMenuItem = new JMenuItem("Print level to console");
+		private final JMenu		gameMenu			= new JMenu("Game");
+		private final JMenu		newGameMenu			= new JMenu("New");
+		private final JMenu		debugMenu			= new JMenu("Debug");
+		private final JMenuItem	newEasyGame			= new JMenuItem("Easy");
+		private final JMenuItem	newMediumGame		= new JMenuItem("Medium");
+		private final JMenuItem	newHardGame			= new JMenuItem("Hard");
+		private final JMenuItem	newCustomGame		= new JMenuItem("Custom");
+		private final JMenuItem	loadMenuItem		= new JMenuItem("Load");
+		private final JMenuItem	saveMenuItem		= new JMenuItem("Save");
+		private final JMenuItem	exitMenuItem		= new JMenuItem("Exit");
+		private final JMenuItem	dbgPrintMenuItem	= new JMenuItem("Print level to console");
 
 		private MainMenu() {
 			newEasyGame.addActionListener(e -> Game.newGame(8, 8, 10));
@@ -283,6 +284,7 @@ public class GameWindow extends JFrame implements Runnable {
 		gameFields.values().stream().filter(field -> field.isActive()).forEach(field -> {
 			Game.threadPool.execute(() -> {
 				field.updateField(data[field.getPositionY()][field.getPositionX()]);
+				field.active = false;
 			});
 		});
 
@@ -313,25 +315,25 @@ public class GameWindow extends JFrame implements Runnable {
 	 */
 	public void updateSmilie(int status) {
 		switch (status) {
-		// mouse down
-		case 0:
-			this.lblSmiley.setText("\uD83D\uDE2F");
-			break;
+			// mouse down
+			case 0:
+				this.lblSmiley.setText("\uD83D\uDE2F");
+				break;
 
-		// mouse up / default
-		case 1:
-			this.lblSmiley.setText("\uD83D\uDE0A");
-			break;
+			// mouse up / default
+			case 1:
+				this.lblSmiley.setText("\uD83D\uDE0A");
+				break;
 
-		// victory
-		case 2:
-			this.lblSmiley.setText("\uD83D\uDE0E");
-			break;
+			// victory
+			case 2:
+				this.lblSmiley.setText("\uD83D\uDE0E");
+				break;
 
-		// defeat
-		case 3:
-			this.lblSmiley.setText("\uD83D\uDE2D");
-			break;
+			// defeat
+			case 3:
+				this.lblSmiley.setText("\uD83D\uDE2D");
+				break;
 		}
 	}
 
@@ -357,11 +359,11 @@ public class GameWindow extends JFrame implements Runnable {
 
 	public void updateTimer(String time) {
 		if (time.length() == 1)
-            this.lblTime.setText("00" + time);
-        else if (time.length() == 2)
-            this.lblTime.setText("0" + time);
-        else if (time.length() == 3)
-            this.lblTime.setText(time);
+			this.lblTime.setText("00" + time);
+		else if (time.length() == 2)
+			this.lblTime.setText("0" + time);
+		else if (time.length() == 3)
+			this.lblTime.setText(time);
 	}
 
 	public void updateBombCounter(String numBombs) {
@@ -414,21 +416,28 @@ public class GameWindow extends JFrame implements Runnable {
 		this.lblSmiley.setFont(new Font(null, Font.BOLD, 50));
 		this.lblSmiley.setAlignmentX(CENTER_ALIGNMENT);
 		this.lblSmiley.setText("\uD83D\uDE0A");
-        this.lblSmiley.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                Game.newGame(true);
-            }
+		this.lblSmiley.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Game.newGame(true);
+			}
 
-            @Override
-            public void mouseExited(MouseEvent e) {}
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseClicked(MouseEvent e) {}
-        });
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
 
 		this.lblTime.setFont(new Font(null, Font.BOLD, 30));
 
@@ -446,7 +455,10 @@ public class GameWindow extends JFrame implements Runnable {
 
 		this.add(pnlMenu, BorderLayout.NORTH);
 		this.add(lblStatus, BorderLayout.SOUTH);
+		
+		ImageIcon icon = new ImageIcon("resources/icons/icon.png");
 
+		this.setIconImage(icon.getImage());
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
