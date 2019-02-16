@@ -1,19 +1,18 @@
 package game.gui;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.BrokenBarrierException;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
