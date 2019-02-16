@@ -36,13 +36,13 @@ import game.Game;
 public class GameWindow extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private JPanel				pnlMain		= new JPanel();
-	private final JPanel		pnlMenu		= new JPanel();
-	private final JLabel		lblSmiley	= new JLabel();
-	private final JLabel		lblTime		= new JLabel("000");
-	private final JLabel		lblBombs	= new JLabel("000");
-	private final JLabel		lblStatus	= new JLabel(" ");
-	private Map<String, Field>	gameFields;
+	private JPanel pnlMain = new JPanel();
+	private final JPanel pnlMenu = new JPanel();
+	private final JLabel lblSmiley = new JLabel();
+	private final JLabel lblTime = new JLabel("000");
+	private final JLabel lblBombs = new JLabel("000");
+	private final JLabel lblStatus = new JLabel(" ");
+	private Map<String, Field> gameFields;
 
 	/**
 	 * inner class encapsulating the logic for the fields
@@ -53,11 +53,11 @@ public class GameWindow extends JFrame implements Runnable {
 	class Field extends JButton {
 		private static final long serialVersionUID = 1L;
 
-		private final Field	_this_;
-		private final int	positionY;
-		private final int	positionX;
-		private boolean		active	= true;
-		private boolean		clicked	= false;
+		private final Field _this_;
+		private final int positionY;
+		private final int positionX;
+		private boolean active = true;
+		private boolean clicked = false;
 
 		/**
 		 * getter for the y-position
@@ -203,17 +203,17 @@ public class GameWindow extends JFrame implements Runnable {
 	private class MainMenu extends JMenuBar {
 		private static final long serialVersionUID = 1L;
 
-		private final JMenu		gameMenu			= new JMenu("Game");
-		private final JMenu		newGameMenu			= new JMenu("New");
-		private final JMenu		debugMenu			= new JMenu("Debug");
-		private final JMenuItem	newEasyGame			= new JMenuItem("Easy");
-		private final JMenuItem	newMediumGame		= new JMenuItem("Medium");
-		private final JMenuItem	newHardGame			= new JMenuItem("Hard");
-		private final JMenuItem	newCustomGame		= new JMenuItem("Custom");
-		private final JMenuItem	loadMenuItem		= new JMenuItem("Load");
-		private final JMenuItem	saveMenuItem		= new JMenuItem("Save");
-		private final JMenuItem	exitMenuItem		= new JMenuItem("Exit");
-		private final JMenuItem	dbgPrintMenuItem	= new JMenuItem("Print level to console");
+		private final JMenu gameMenu = new JMenu("Game");
+		private final JMenu newGameMenu = new JMenu("New");
+		private final JMenu debugMenu = new JMenu("Debug");
+		private final JMenuItem newEasyGame = new JMenuItem("Easy");
+		private final JMenuItem newMediumGame = new JMenuItem("Medium");
+		private final JMenuItem newHardGame = new JMenuItem("Hard");
+		private final JMenuItem newCustomGame = new JMenuItem("Custom");
+		private final JMenuItem loadMenuItem = new JMenuItem("Load");
+		private final JMenuItem saveMenuItem = new JMenuItem("Save");
+		private final JMenuItem exitMenuItem = new JMenuItem("Exit");
+		private final JMenuItem dbgPrintMenuItem = new JMenuItem("Print level to console");
 
 		private MainMenu() {
 			newEasyGame.addActionListener(e -> Game.newGame(8, 8, 10));
@@ -315,25 +315,25 @@ public class GameWindow extends JFrame implements Runnable {
 	 */
 	public void updateSmilie(int status) {
 		switch (status) {
-			// mouse down
-			case 0:
-				this.lblSmiley.setText("\uD83D\uDE2F");
-				break;
+		// mouse down
+		case 0:
+			this.lblSmiley.setText("\uD83D\uDE2F");
+			break;
 
-			// mouse up / default
-			case 1:
-				this.lblSmiley.setText("\uD83D\uDE0A");
-				break;
+		// mouse up / default
+		case 1:
+			this.lblSmiley.setText("\uD83D\uDE0A");
+			break;
 
-			// victory
-			case 2:
-				this.lblSmiley.setText("\uD83D\uDE0E");
-				break;
+		// victory
+		case 2:
+			this.lblSmiley.setText("\uD83D\uDE0E");
+			break;
 
-			// defeat
-			case 3:
-				this.lblSmiley.setText("\uD83D\uDE2D");
-				break;
+		// defeat
+		case 3:
+			this.lblSmiley.setText("\uD83D\uDE2D");
+			break;
 		}
 	}
 
