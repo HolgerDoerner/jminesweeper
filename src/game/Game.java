@@ -124,7 +124,6 @@ public class Game {
 		}
 
 		gameWindow.updateBombCounter("" + bombCount);
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 	}
 
 	/**
@@ -155,13 +154,13 @@ public class Game {
 				// check left <-> right
 				try {
 					if (level.get(positionY, positionX + i) == BOMB)
-						;
+						; // skip BOMB
 					else if (level.get(positionY, positionX + i) == FLAGGED_BOMB)
-						;
+						; // skip FLAGGED_BOMB
 					else if (level.get(positionY, positionX + i) >= 'a' & level.get(positionY, positionX) <= 'i')
-						; // FLAGGED
+						; // skip FLAGGED
 					else if (level.get(positionY, positionX + i) >= 'A' & level.get(positionY, positionX) <= 'I')
-						; // TOUCHED
+						; // skip TOUCHED
 					else {
 						final int nextX = positionX + i;
 						threadPool.execute(() -> revealField(positionY, nextX));
@@ -231,8 +230,6 @@ public class Game {
 		}
 
 		safeFields--;
-
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 
 		if (safeFields == 0)
 			gameVictory();
@@ -348,7 +345,6 @@ public class Game {
 		gameWindow.updateTouchedFields(touchedFields);
 		gameWindow.updateTimer("000");
 		gameWindow.updateBombCounter("" + bombCount);
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 
 		gameRunning = true;
 
@@ -416,7 +412,6 @@ public class Game {
 
 		gameWindow.updateTimer("000");
 		gameWindow.updateBombCounter("" + bombCount);
-		gameWindow.updateStatusLabel("Size: " + sizeY + "x" + sizeX + " Bombs: " + numBombs);
 
 		gameRunning = true;
 
@@ -452,7 +447,7 @@ public class Game {
 			if (DEBUG)
 				System.out.println(Thread.currentThread().getName() + " started!");
 
-			int time = 990;
+			int time = 0;
 
 			while (!Thread.currentThread().isInterrupted()) {
 				try {

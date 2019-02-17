@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,7 +40,6 @@ public class GameWindow extends JFrame implements Runnable {
 	private final JLabel lblSmiley = new JLabel();
 	private final JLabel lblTime = new JLabel("000");
 	private final JLabel lblBombs = new JLabel("000");
-	private final JLabel lblStatus = new JLabel(" ");
 	private Map<String, Field> gameFields;
 
 	/**
@@ -213,7 +211,7 @@ public class GameWindow extends JFrame implements Runnable {
 		private final JMenuItem loadMenuItem = new JMenuItem("Load");
 		private final JMenuItem saveMenuItem = new JMenuItem("Save");
 		private final JMenuItem exitMenuItem = new JMenuItem("Exit");
-		private final JMenuItem dbgPrintMenuItem = new JMenuItem("Print level to console");
+		private final JMenuItem debugPrintMenuItem = new JMenuItem("Print level to console");
 
 		private MainMenu() {
 			newEasyGame.addActionListener(e -> Game.newGame(8, 8, 10));
@@ -225,7 +223,7 @@ public class GameWindow extends JFrame implements Runnable {
 			exitMenuItem.addActionListener(e -> Game.exitGame());
 
 			// only in DEBUG-mode
-			dbgPrintMenuItem.addActionListener(e -> Game.printLevel());
+			debugPrintMenuItem.addActionListener(e -> Game.printLevel());
 
 			newGameMenu.add(newEasyGame);
 			newGameMenu.add(newMediumGame);
@@ -240,7 +238,7 @@ public class GameWindow extends JFrame implements Runnable {
 			gameMenu.add(new JSeparator());
 			gameMenu.add(exitMenuItem);
 
-			debugMenu.add(dbgPrintMenuItem);
+			debugMenu.add(debugPrintMenuItem);
 
 			this.add(gameMenu);
 
@@ -348,15 +346,6 @@ public class GameWindow extends JFrame implements Runnable {
 		}
 	}
 
-	/**
-	 * updates the status-label beneath the gamefield.
-	 *
-	 * @param statusText a java.lang.String containing the text to display
-	 */
-	public void updateStatusLabel(String statusText) {
-		this.lblStatus.setText(statusText);
-	}
-
 	public void updateTimer(String time) {
 		if (time.length() == 1)
 			this.lblTime.setText("00" + time);
@@ -444,9 +433,9 @@ public class GameWindow extends JFrame implements Runnable {
 		this.lblBombs.setFont(new Font(null, Font.BOLD, 30));
 
 		this.pnlMenu.add(lblBombs);
-		this.pnlMenu.add(Box.createHorizontalStrut(20));
+		this.pnlMenu.add(Box.createHorizontalStrut(10));
 		this.pnlMenu.add(lblSmiley);
-		this.pnlMenu.add(Box.createHorizontalStrut(20));
+		this.pnlMenu.add(Box.createHorizontalStrut(10));
 		this.pnlMenu.add(lblTime);
 
 		this.setLayout(new BorderLayout());
@@ -454,9 +443,7 @@ public class GameWindow extends JFrame implements Runnable {
 		this.setJMenuBar(new MainMenu());
 
 		this.add(pnlMenu, BorderLayout.NORTH);
-		this.add(lblStatus, BorderLayout.SOUTH);
 
-		this.setIconImage(new ImageIcon("icon.png").getImage());
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
