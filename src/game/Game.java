@@ -171,13 +171,13 @@ public class Game {
 				// check above <-> beneath
 				try {
 					if (level.get(positionY + i, positionX) == BOMB)
-						;
+						; // skip BOMB
 					else if (level.get(positionY + i, positionX) == FLAGGED_BOMB)
-						;
+						; // skip FLAGGED_BOMB
 					else if (level.get(positionY + i, positionX) >= 'a' & level.get(positionY, positionX) <= 'i')
-						; // FLAGGED
+						; // skip FLAGGED
 					else if (level.get(positionY + i, positionX) >= 'A' & level.get(positionY, positionX) <= 'I')
-						; // TOUCHED
+						; // skip TOUCHED
 					else {
 						final int nextY = positionY + i;
 						threadPool.execute(() -> revealField(nextY, positionX));
@@ -188,13 +188,13 @@ public class Game {
 				// check above-left <-> beneath-right
 				try {
 					if (level.get(positionY + i, positionX + i) == BOMB)
-						;
+						; // skip BOMB
 					else if (level.get(positionY + i, positionX + i) == FLAGGED_BOMB)
-						;
+						; // skip FLAGGED_BOMB
 					else if (level.get(positionY + i, positionX + i) >= 'a' & level.get(positionY, positionX) <= 'i') // FLAGGED
-						;
+						; // skip FLAGGED
 					else if (level.get(positionY + i, positionX + i) >= 'A' & level.get(positionY, positionX) <= 'I') // TOUCHED
-						;
+						; // skip TOUCHED
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + i;
@@ -206,13 +206,13 @@ public class Game {
 				// check above-right <-> beneath-left
 				try {
 					if (level.get(positionY + i, positionX + j) == BOMB)
-						;
+						; // skip BOMB
 					else if (level.get(positionY + i, positionX + j) == FLAGGED_BOMB)
-						;
+						; // skip FLAGGED_BOMB
 					else if (level.get(positionY + i, positionX + j) >= 'a' & level.get(positionY, positionX) <= 'i') // FLAGGED
-						;
+						; // skip FLAGGED
 					else if (level.get(positionY + i, positionX + j) >= 'A' & level.get(positionY, positionX) <= 'I') // TOUCHED
-						;
+						; // skip TOUCHED
 					else {
 						final int nextY = positionY + i;
 						final int nextX = positionX + j;
