@@ -455,10 +455,7 @@ public class GameWindow extends JFrame implements Runnable {
 
 		this.add(pnlMenu, BorderLayout.NORTH);
 		this.add(lblStatus, BorderLayout.SOUTH);
-		
-		ImageIcon icon = new ImageIcon("resources/icons/icon.png");
 
-		this.setIconImage(icon.getImage());
 		this.setTitle("jMinesweeper");
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
